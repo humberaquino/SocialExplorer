@@ -7,15 +7,25 @@
 //
 
 import UIKit
+import OAuthSwift
+import XCGLogger
+
+// Global logger
+let logger = XCGLogger.defaultInstance()
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+
+        self.setupLogging()
+       
+        
+        logger.info("Application started")
+        
         return true
     }
 
@@ -27,6 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        NSUserDefaults.standardUserDefaults().synchronize()
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
@@ -41,6 +52,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+        if url.host == "oauth-callback" {
+            if url.path!.hasPrefix("/instagram") {
+                OAuth2Swift.handleOpenURL(url)
+            }
+        }
+        return true
+    }
+    
+    private func setupLogging() {        
+        logger.setup(logLevel: Config.Logger.LogLevel, showLogLevel: Config.Logger.ShowLogLevel, showFileNames: Config.Logger.ShowFileNames, showLineNumbers: Config.Logger.ShowLineNumbers, writeToFile: Config.Logger.WriteToFile, fileLogLevel: Config.Logger.FileLogLevel)
+        
+        var dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "hh:mm:ss:SSS"
+        dateFormatter.locale = NSLocale.currentLocale()
+        logger.dateFormatter = dateFormatter
+    }
+ 
 }
 
