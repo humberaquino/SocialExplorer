@@ -14,7 +14,8 @@ import CoreData
 // This should be the starting point of syncronization
 class SyncManager: NSObject {
     
-    let SyncError = "SyncError"
+    static let SyncError = "SyncError"
+    static let SyncComplete = "SyncComplete"
     
     private var running = false
     private var errorList: SynchronizedArray<NSError>!
@@ -151,6 +152,7 @@ class SyncManager: NSObject {
                             
                             // If there are now new locations then complete
                             if newLocations!.count == 0 {
+                                logger.debug("No new locations. Completing")
                                  self.saveAndComplete()
                                 return
                             }
@@ -159,6 +161,7 @@ class SyncManager: NSObject {
                             let mediaDownloadGroup = dispatch_group_create()
                             // For each new location get its media
                             for newLocation in newLocations! {
+                                logger.debug("Entering location: \(newLocation)")
                                 dispatch_group_enter(mediaDownloadGroup)
                                 self.instagramClient.requestMediaRecentForLocationId(newLocation.id) {
                                     (instagramMediaDTOList, error) -> Void in
@@ -179,12 +182,15 @@ class SyncManager: NSObject {
 
                                         newLocation.state = CDLocationState.Ready.rawValue
                                         
+                                        logger.debug("Leaving location: \(newLocation)")
                                         dispatch_group_leave(mediaDownloadGroup)
+                                        
                                     }
                                 }
                             }
                             
                             dispatch_group_notify(mediaDownloadGroup, self.SyncQueue) {
+                                logger.debug("Media download complete")
                                 self.saveAndComplete()
                             }
                         }
@@ -209,9 +215,9 @@ class SyncManager: NSObject {
                 return
             }
             CoreDataStackManager.sharedInstance().saveContext() { hadChanges in
-                
                 logger.info("Sync done")
                 self.markSyncAsDone()
+                NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.SyncComplete, object: nil)
             }
         }
     }
@@ -221,7 +227,7 @@ class SyncManager: NSObject {
     func notifyError(error: NSError) {
         logger.error("Sync error: \(error)")
         markSyncAsDone()
-        NSNotificationCenter.defaultCenter().postNotificationName(self.SyncError, object: error)
+        NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.SyncError, object: error)
     }
     
     // MARK: Utils

@@ -16,8 +16,10 @@ import XCGLogger
 
 class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetchedResultsControllerDelegate {
     
-    let InterestingLocationReusableAnnotationId = "InterestingLocationReusableAnnotation"
     let ReferenceLocationSelectedSegueId = "ReferenceLocationSelected"
+    
+    let LocationPinReusableAnnotationId = "LocationPinReusableAnnotationId"
+    let ReferencePinReusableAnnotationId = "ReferencePinReusableAnnotationId"
     
     let userSettings = UserSettings.sharedInstance()
     
@@ -60,6 +62,9 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         }
         
         reloadAnnotationsToMapViewFromFetchedResults()
+        
+        self.registerObservers()
+        
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -73,6 +78,32 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         mapView.removeGestureRecognizer(longTapRecognizer)
         
     }
+    
+    
+    func registerObservers() {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncComplete:", name: SyncManager.SyncComplete, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncError:", name: SyncManager.SyncError, object: nil)
+    }
+    
+    func deregisterObservers() {
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManager.SyncComplete, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManager.SyncError, object: nil)
+    }
+    
+    func handleSyncComplete(notification: NSNotification) {
+        logger.debug("Handling sync complete")
+        reloadSelectedReferenceLocationsFromMap()
+    }
+    
+    func handleSyncError(notification: NSNotification) {
+        logger.debug("Handling sync error")
+    }
+    
+    
+    deinit {
+        deregisterObservers()
+    }
+    
     
     @IBAction func forceSyncAction(sender: UIBarButtonItem) {
         SyncManager.sharedInstance().sync()        
@@ -114,14 +145,30 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
 
     func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
         
+        let pinAnnotation = annotation as! PinAnnotation
         
-        var annotationView:MKPinAnnotationView! = mapView.dequeueReusableAnnotationViewWithIdentifier(InterestingLocationReusableAnnotationId) as? MKPinAnnotationView
+        var annotationView: MKAnnotationView!
         
-        if annotationView != nil {
-            annotationView.annotation = annotation
+        if pinAnnotation.model == CDReference.ModelName {
+            // is a reference
+            var pinAnnotationView: MKPinAnnotationView! = mapView.dequeueReusableAnnotationViewWithIdentifier(ReferencePinReusableAnnotationId) as? MKPinAnnotationView
+            if pinAnnotationView != nil {
+                pinAnnotationView.annotation = annotation
+            } else {
+                pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: ReferencePinReusableAnnotationId)
+                pinAnnotationView.animatesDrop = false
+            }
+            annotationView = pinAnnotationView
         } else {
-            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: InterestingLocationReusableAnnotationId)
-            annotationView.animatesDrop = false
+            // is a location
+            let existingAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(LocationPinReusableAnnotationId)
+            
+            if existingAnnotationView != nil {
+                existingAnnotationView.annotation = annotation
+                annotationView = existingAnnotationView
+            } else {
+                annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: LocationPinReusableAnnotationId)
+            }
         }
         
         configureAnnotationView(annotationView)
@@ -136,7 +183,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         let pinAnnotation = view.annotation as! PinAnnotation
         
         if pinAnnotation.model == CDReference.ModelName {
-            if selectedPinAnnotation != pinAnnotation {
+//            if selectedPinAnnotation != pinAnnotation {
                 logger.debug("New pin selected")
                 
                 selectedPinAnnotation = pinAnnotation
@@ -151,7 +198,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
                 reloadSelectedReferenceLocationsFromMap()
                 
             }
-        }
+//        }
         
     }
     
@@ -377,8 +424,9 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         // FIXME: Is this even called?
     }
     
-    func configureAnnotationView(annotationView: MKPinAnnotationView) {
+    func configureAnnotationView(annotationView: MKAnnotationView) {
         let pinAnnotation = annotationView.annotation as! PinAnnotation
+        
         
         if pinAnnotation.model == CDReference.ModelName {
             // Is a reference
@@ -390,14 +438,16 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
             pinAnnotation.title = reference.name
             pinAnnotation.subtitle = "\(referenceLocationCount) locations"
             
+            let pinAnnotationView = annotationView as! MKPinAnnotationView
+            
             if referenceLocationCount > 0 {
-                annotationView.pinColor = MKPinAnnotationColor.Green
-                annotationView.draggable = true
-                annotationView.canShowCallout = true
+                pinAnnotationView.pinColor = MKPinAnnotationColor.Green
+                pinAnnotationView.draggable = true
+                pinAnnotationView.canShowCallout = true
             } else {
-                annotationView.draggable = false
-                annotationView.canShowCallout = false
-                annotationView.pinColor = MKPinAnnotationColor.Red
+                pinAnnotationView.draggable = false
+                pinAnnotationView.canShowCallout = false
+                pinAnnotationView.pinColor = MKPinAnnotationColor.Red
             }
         } else {
             // Is a location
