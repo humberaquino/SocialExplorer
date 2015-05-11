@@ -18,9 +18,12 @@ class PinAnnotation: NSObject, MKAnnotation {
     var title: String?
     var subtitle: String?
     
-    init (objectID: NSManagedObjectID, coordinate: CLLocationCoordinate2D) {
+    var model: String
+    
+    init (objectID: NSManagedObjectID, coordinate: CLLocationCoordinate2D, model: String) {
         self.objectID = objectID
         self.coordinate = coordinate
+        self.model = model
     }
     
 }

@@ -22,8 +22,8 @@
 		5750D9041AF96D3500D93191 /* UIKitExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D9031AF96D3500D93191 /* UIKitExtensions.swift */; };
 		5750D90B1AF97AF400D93191 /* InstagramClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D90A1AF97AF400D93191 /* InstagramClient.swift */; };
 		5750D90D1AF9831300D93191 /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D90C1AF9831300D93191 /* FoundationExtensions.swift */; };
-		575510EE1B0002BB0065C834 /* Coordenable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575510ED1B0002BB0065C834 /* Coordenable.swift */; };
 		575510F01B0013AB0065C834 /* PinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575510EF1B0013AB0065C834 /* PinAnnotation.swift */; };
+		577D70BD1B014FA9009CF1D1 /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577D70BC1B014FA8009CF1D1 /* MediaViewController.swift */; };
 		57ADE41A1AF6725A004C3690 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57ADE4191AF6725A004C3690 /* AppDelegate.swift */; };
 		57ADE41C1AF6725A004C3690 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57ADE41B1AF6725A004C3690 /* FirstViewController.swift */; };
 		57ADE41F1AF6725A004C3690 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 57ADE41D1AF6725A004C3690 /* Main.storyboard */; };
@@ -36,6 +36,8 @@
 		57D2C1EB1AFD0BC1006C3C61 /* InstagramMediaDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1EA1AFD0BC1006C3C61 /* InstagramMediaDTO.swift */; };
 		57D2C1ED1AFD7339006C3C61 /* CDLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1EC1AFD7339006C3C61 /* CDLocation.swift */; };
 		57D2C1EF1AFE3ADB006C3C61 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */; };
+		57DC7EBC1B00E6C7004C6FF6 /* MediaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57DC7EBB1B00E6C7004C6FF6 /* MediaTableViewCell.swift */; };
+		57DC7EC11B00EDF1004C6FF6 /* Coordenable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,8 +65,8 @@
 		5750D9031AF96D3500D93191 /* UIKitExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKitExtensions.swift; sourceTree = "<group>"; };
 		5750D90A1AF97AF400D93191 /* InstagramClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstagramClient.swift; sourceTree = "<group>"; };
 		5750D90C1AF9831300D93191 /* FoundationExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoundationExtensions.swift; sourceTree = "<group>"; };
-		575510ED1B0002BB0065C834 /* Coordenable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coordenable.swift; sourceTree = "<group>"; };
 		575510EF1B0013AB0065C834 /* PinAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinAnnotation.swift; sourceTree = "<group>"; };
+		577D70BC1B014FA8009CF1D1 /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaViewController.swift; sourceTree = "<group>"; };
 		57ADE4141AF67259004C3690 /* SocialExplorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SocialExplorer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		57ADE4181AF6725A004C3690 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		57ADE4191AF6725A004C3690 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -81,6 +83,8 @@
 		57D2C1EA1AFD0BC1006C3C61 /* InstagramMediaDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstagramMediaDTO.swift; sourceTree = "<group>"; };
 		57D2C1EC1AFD7339006C3C61 /* CDLocation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDLocation.swift; sourceTree = "<group>"; };
 		57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
+		57DC7EBB1B00E6C7004C6FF6 /* MediaTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewCell.swift; sourceTree = "<group>"; };
+		57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coordenable.swift; sourceTree = "<group>"; };
 		689D50B200AA8C346D5ED51E /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		C8C7C0685EBB16728355165C /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		CC0FC88CB1475B41DF71C662 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,7 +143,6 @@
 			isa = PBXGroup;
 			children = (
 				5750D8F41AF82ADD00D93191 /* DiscoverMapViewController.swift */,
-				5750D9011AF94B7300D93191 /* ReferenceViewController.swift */,
 				575510EF1B0013AB0065C834 /* PinAnnotation.swift */,
 			);
 			name = "Discovery map";
@@ -161,7 +164,7 @@
 				57D2C1EC1AFD7339006C3C61 /* CDLocation.swift */,
 				57D2C1AF1AFABB46006C3C61 /* CDMedia.swift */,
 				5750D8F91AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld */,
-				575510ED1B0002BB0065C834 /* Coordenable.swift */,
+				57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -182,6 +185,23 @@
 				57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */,
 			);
 			name = Network;
+			sourceTree = "<group>";
+		};
+		577D70BE1B015690009CF1D1 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				570822881AF7FF8A007B09C3 /* Start */,
+				5750D8F61AF92E8200D93191 /* Discovery map */,
+				57DC7EBD1B00EAEF004C6FF6 /* Reference */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		577D70BF1B01569A009CF1D1 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Service;
 			sourceTree = "<group>";
 		};
 		57ADE40B1AF67259004C3690 = {
@@ -210,8 +230,8 @@
 				5701E7D21AF67A920021547D /* Config.swift */,
 				57ADE4191AF6725A004C3690 /* AppDelegate.swift */,
 				57ADE41D1AF6725A004C3690 /* Main.storyboard */,
-				570822881AF7FF8A007B09C3 /* Start */,
-				5750D8F61AF92E8200D93191 /* Discovery map */,
+				577D70BE1B015690009CF1D1 /* View */,
+				577D70BF1B01569A009CF1D1 /* Service */,
 				5750D9091AF9767000D93191 /* Network */,
 				570822861AF7FF61007B09C3 /* Settings */,
 				5750D8FC1AF93CB700D93191 /* Core Data */,
@@ -263,6 +283,16 @@
 				57D2C1EA1AFD0BC1006C3C61 /* InstagramMediaDTO.swift */,
 			);
 			name = DTO;
+			sourceTree = "<group>";
+		};
+		57DC7EBD1B00EAEF004C6FF6 /* Reference */ = {
+			isa = PBXGroup;
+			children = (
+				5750D9011AF94B7300D93191 /* ReferenceViewController.swift */,
+				57DC7EBB1B00E6C7004C6FF6 /* MediaTableViewCell.swift */,
+				577D70BC1B014FA8009CF1D1 /* MediaViewController.swift */,
+			);
+			name = Reference;
 			sourceTree = "<group>";
 		};
 		655A3C721308B859CACE12FF /* Pods */ = {
@@ -446,6 +476,7 @@
 				57D2C1E61AFCF6F4006C3C61 /* InstagramLocationDTO.swift in Sources */,
 				5750D8FB1AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld in Sources */,
 				57D2C1B01AFABB46006C3C61 /* CDMedia.swift in Sources */,
+				577D70BD1B014FA9009CF1D1 /* MediaViewController.swift in Sources */,
 				5750D8F81AF93C7500D93191 /* CDReference.swift in Sources */,
 				575510F01B0013AB0065C834 /* PinAnnotation.swift in Sources */,
 				5701E7D31AF67A920021547D /* Config.swift in Sources */,
@@ -455,13 +486,14 @@
 				57D2C1EB1AFD0BC1006C3C61 /* InstagramMediaDTO.swift in Sources */,
 				572E66621AF80F7600591A48 /* UserSettings.swift in Sources */,
 				57D2C1E91AFD07C2006C3C61 /* ErrorUtils.swift in Sources */,
-				575510EE1B0002BB0065C834 /* Coordenable.swift in Sources */,
 				5701E7D11AF67A080021547D /* Utils.swift in Sources */,
 				57D2C1EF1AFE3ADB006C3C61 /* SyncManager.swift in Sources */,
 				5750D90D1AF9831300D93191 /* FoundationExtensions.swift in Sources */,
+				57DC7EC11B00EDF1004C6FF6 /* Coordenable.swift in Sources */,
 				5750D8F51AF82ADD00D93191 /* DiscoverMapViewController.swift in Sources */,
 				57D2C1ED1AFD7339006C3C61 /* CDLocation.swift in Sources */,
 				570822851AF7FBCD007B09C3 /* SettingsViewController.swift in Sources */,
+				57DC7EBC1B00E6C7004C6FF6 /* MediaTableViewCell.swift in Sources */,
 				5750D90B1AF97AF400D93191 /* InstagramClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

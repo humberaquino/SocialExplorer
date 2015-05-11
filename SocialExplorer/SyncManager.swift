@@ -17,7 +17,7 @@ class SyncManager: NSObject {
     let SyncError = "SyncError"
     
     private var running = false
-    private var errorList = SynchronizedArray<NSError>()
+    private var errorList: SynchronizedArray<NSError>!
     
     let instagramClient = InstagramClient()
     
@@ -38,6 +38,10 @@ class SyncManager: NSObject {
             }
             
             logger.debug("Sync started")
+            
+            // SEtup error list
+            self.errorList = SynchronizedArray<NSError>()
+            
             // Setup provate context
             self.privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
             self.privateContext.parentContext = CoreDataStackManager.sharedInstance().managedObjectContext!

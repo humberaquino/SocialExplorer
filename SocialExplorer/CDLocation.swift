@@ -14,7 +14,6 @@ import MapKit
 enum CDLocationState: String {
     case New = "new" // It doesn't have media associated
     case Ready = "ready" // Is ready. Has media associated
-    case Saved = "saved" // Is ready and is saved. This means that the user
 }
 
 @objc(CDLocation)
@@ -80,6 +79,8 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         mediaList = mediaList.cloneAndAddObject(media)
     }
     
+ 
+    
     override var description: String {
         return "[\(id)]: \(name)"
     }
@@ -98,7 +99,9 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         return name
     }
     
-    var subtitle: String? = nil
+    var subtitle: String {
+        return "\(mediaList.count) medias"
+    }
     
     
 }

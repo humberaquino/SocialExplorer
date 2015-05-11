@@ -23,7 +23,7 @@ enum CDReferenceState: String {
 
 @objc(CDReference)
 
-class CDReference: NSManagedObject {
+class CDReference: NSManagedObject, Coordenable {
     
     static let ModelName = "Reference"
     
@@ -80,6 +80,19 @@ class CDReference: NSManagedObject {
         locationList = locationList.cloneAndAddObject(location)
     }
     
+    
+    func countNonEmptyLocations() -> Int {
+        var total = 0
+
+        locationList.enumerateObjectsUsingBlock { (obj, index, done) -> Void in
+            let location = obj as! CDLocation
+            if location.mediaList.count > 0 {
+                total++
+            }
+        }
+        
+        return total
+    }
     
     // MARK - MKAnnotation
     

@@ -13,7 +13,7 @@ import SwiftyJSON
 
 enum CDMediaState: String {
     case New = "new"
-    case Done = "done"
+    case Favorited = "favorited"
 }
 
 @objc(CDMedia)
@@ -43,7 +43,14 @@ class CDMedia: NSManagedObject {
         static let Images_StandardResolution = "standard_resolution"
         static let Images_Thumbnail = "thumbnail"
         static let Images_url = "url"
-        
+    }
+    
+    struct Types {
+        static let Instagram = ""
+    }
+    
+    struct PropertyKeys {
+         static let ParentLocation = "parentLocation"
     }
     
     @NSManaged var id: String
@@ -80,6 +87,8 @@ class CDMedia: NSManagedObject {
         
         thumbnailURL = json[Keys.Images][Keys.Images_Thumbnail].stringValue
         standardResolutionURL = json[Keys.Images][Keys.Images_StandardResolution].stringValue
+        
+        state = CDMediaState.New.rawValue
     }
     
     init(dto: InstagramMediaRecentDTO, context: NSManagedObjectContext) {
@@ -97,5 +106,32 @@ class CDMedia: NSManagedObject {
         thumbnailURL = dto.thumbnail!
         standardResolutionURL = dto.image!
     }
+    
+    
+    var title: String {
+        // TODO: Use better info
+        return "Instagram image with \(likesCount) likes"
+    }
+    
+    var detail: String {
+        return "Tags: \(tags)"
+    }
+    
+    func toogleFavorited() {
+        if isFavorited() {
+            state = CDMediaState.New.rawValue
+        } else {
+            state = CDMediaState.Favorited.rawValue
+        }
+    }
+    
+    func isFavorited() -> Bool {
+        if state == CDMediaState.Favorited.rawValue {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     
 }

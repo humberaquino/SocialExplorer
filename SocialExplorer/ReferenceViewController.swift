@@ -11,17 +11,25 @@ import UIKit
 import MapKit
 import CoreData
 
-class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
+class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     let LocationReusableAnnotationId = "LocationReusableAnnotationId"
+    let MediaDetailSegueId = "MediaDetailSegue"
     
     let userSettings = UserSettings.sharedInstance()
     
     @IBOutlet weak var mapView: MKMapView!
     
+    @IBOutlet weak var tableView: UITableView!
+    
     var sharedContext: NSManagedObjectContext!
     
     var selectedReference: CDReference!
+    var selectedMedia: CDMedia!
+    
+    var tapRecognizer: UITapGestureRecognizer!
+    
+    var annotationProgrammaticallySelected: Bool = false
     
     // MARK: - View life cycle
     
@@ -33,6 +41,11 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
         // Delegate setup
         mapView.delegate = self
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        
+        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleTapOnMapGesture:")
         
         // TODO: Handle the error with a alertview
         // Do the initial fetch
@@ -43,6 +56,14 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
             logger.error("Error performing initial fetch: \(error)")
         }
         
+        // Fetch media
+        error = nil
+        mediaFetchedResultsController.performFetch(&error)
+        if let error = error {
+            logger.error("Error performing initial fetch fot media: \(error)")
+        }
+        
+        tableView.reloadData()
 //        reloadAnnotationsToMapViewFromFetchedResults()
         
     }
@@ -50,6 +71,7 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         // Remove all annotations
+        mapView.addGestureRecognizer(tapRecognizer)
 //        mapView.removeAnnotations(mapView.annotations)                                
         
     }
@@ -67,7 +89,13 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
+        mapView.removeGestureRecognizer(tapRecognizer)
         saveMapViewRegion()
+    }
+    
+    
+    func handleTapOnMapGesture(recognizer: UIGestureRecognizer) {
+        logger.debug("Tap on map")
     }
     
     // MARK: - MKMapViewDelegate
@@ -103,15 +131,14 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     // MARK: - MKMapViewDelegate
     
     func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
-        var annotationView:MKPinAnnotationView! = mapView.dequeueReusableAnnotationViewWithIdentifier(LocationReusableAnnotationId) as? MKPinAnnotationView
+        var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(LocationReusableAnnotationId)
         
-//        let reference = annotation as! CDReference
         
         if annotationView != nil {
             annotationView.annotation = annotation
         } else {
             annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: LocationReusableAnnotationId)
-            annotationView.animatesDrop = true
+            
         }
         
         configurePin(annotationView)
@@ -138,17 +165,49 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         }
     }
     
-    func configurePin(annotationView: MKPinAnnotationView) {
-        let annotation = annotationView.annotation
-        if annotation.isKindOfClass(CDReference.classForCoder()) {
-            annotationView.pinColor = MKPinAnnotationColor.Green
-            annotationView.draggable = true
-        } else if annotation.isKindOfClass(CDLocation.classForCoder()) {
-            annotationView.pinColor = MKPinAnnotationColor.Red
-            annotationView.draggable = false
+    func mapView(mapView: MKMapView!, didSelectAnnotationView view: MKAnnotationView!) {
+        let location = view.annotation as! CDLocation
+         logger.debug("Annotation selected")
+        if let firstObject = location.mediaList.firstObject as? CDMedia {
+            if let indexPath = mediaFetchedResultsController.indexPathForObject(firstObject) {
+                if !annotationProgrammaticallySelected {
+                    tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: .Top, animated: true)
+                }
+            }
+        }
+        // FIXME
+        annotationProgrammaticallySelected = false
+      
+    }
+    
+    func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+         println("----- End scroling")
+        if let visibleIndexPaths = tableView.indexPathsForVisibleRows() as? [NSIndexPath] {
+            if visibleIndexPaths.count > 0 {
+                let indexPath = visibleIndexPaths[0]
+                let topMedia = mediaFetchedResultsController.objectAtIndexPath(indexPath) as! CDMedia
+                
+                annotationProgrammaticallySelected = true
+                mapView.selectAnnotation(topMedia.parentLocation, animated: true)
+                logger.debug("Current location: \(topMedia.parentLocation.name)")
+                
+            }
         }
     }
     
+    
+    func configurePin(annotationView: MKAnnotationView) {
+        var image = UIImage(named: "MiniInstagram")
+        
+        annotationView.image = image
+        annotationView.canShowCallout = true
+        let annotation = annotationView.annotation as! CDLocation
+        if annotation.mediaList.count == 0 {
+            annotationView.alpha = 0.5
+        } else {
+            annotationView.alpha = 1.0
+        }
+    }
     
     
     // MARK: NSFetchedResultsControllerDelegate utils
@@ -166,6 +225,48 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         fetchedResultsChangeInsert(annotation)
     }
     
+    
+    // MARK: UITableViewDelegate
+
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        if let media = mediaFetchedResultsController.objectAtIndexPath(indexPath) as? CDMedia {
+            selectedMedia = media
+            performSegueWithIdentifier(MediaDetailSegueId, sender: self)
+        }
+    }
+    
+    // MARK: UITableViewDataSource
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let info = self.mediaFetchedResultsController.sections![section] as! NSFetchedResultsSectionInfo
+        return info.numberOfObjects
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        // To mix cell types http://stackoverflow.com/questions/1405688/2-different-types-of-custom-uitableviewcells-in-uitableview
+        let cell = tableView.dequeueReusableCellWithIdentifier("MediaCell", forIndexPath: indexPath) as! MediaTableViewCell
+        self.configureCell(cell, atIndexPath: indexPath)
+        return cell
+    }
+    
+    func configureCell(cell: MediaTableViewCell, atIndexPath indexPath: NSIndexPath) {
+        let media = self.mediaFetchedResultsController.objectAtIndexPath(indexPath) as! CDMedia
+
+        cell.configureUsingMedia(media)
+        
+    }
+    
+    // MARK: Segue
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == MediaDetailSegueId {
+            let destination = segue.destinationViewController as! MediaViewController
+            destination.mediaSelected = selectedMedia
+        }
+    }
+    
+    
     // MARK: Utils    
     
     // Utility method to start a fresh mapview
@@ -176,20 +277,39 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
 //        mapView.addAnnotation(selectedReference)
         
-        mapView.zoomToFitLocationAnnotations()
+        mapView.zoomToFitCurrentCoordenables()
     }
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
+    lazy var mediaFetchedResultsController: NSFetchedResultsController = {
         
-        let fetchRequest = NSFetchRequest(entityName: CDLocation.ModelName)
-        fetchRequest.predicate = NSPredicate(format: "%K contains[c] %@", CDLocation.Keys.ReferenceList, self.selectedReference)
+        let fetchRequest = NSFetchRequest(entityName: CDMedia.ModelName)
+        fetchRequest.predicate = NSPredicate(format: "parentLocation.referenceList contains[c] %@", self.selectedReference)
         fetchRequest.sortDescriptors = []
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         return fetchedResultsController
-        }()
+    }()
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        
+        let fetchRequest = NSFetchRequest(entityName: CDLocation.ModelName)
+        
+        let referenceListPredicate = NSPredicate(format: "%K contains[c] %@", CDLocation.Keys.ReferenceList, self.selectedReference)
+        let mediaListNonEmptyPredicate = NSPredicate(format: "mediaList.@count > 0")
+        
+        fetchRequest.predicate = NSCompoundPredicate(type: NSCompoundPredicateType.AndPredicateType, subpredicates: [referenceListPredicate, mediaListNonEmptyPredicate])
+        
+        
+        fetchRequest.sortDescriptors = []
+        
+        
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        return fetchedResultsController
+    }()
     
     func saveMapViewRegion() {
         logger.debug("Saving new location span")
@@ -199,19 +319,27 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
 }
 
 
+// TODO: Move this extension
 // Ref: http://stackoverflow.com/a/7200744/223228
 extension MKMapView {
-    func zoomToFitLocationAnnotations() {
-        if self.annotations.count == 0 {
+    
+    func zoomToFitCurrentCoordenables() {
+        let locations = self.annotations as NSArray
+        zoomToFitCoordenables(locations)
+    }
+    
+    
+    func zoomToFitCoordenables(coordenables: NSArray) {
+        if coordenables.count == 0 {
             return
         }
         
         var topLeftCoord = CLLocationCoordinate2D(latitude: -90, longitude: 180)
         var bottomRightCoord = CLLocationCoordinate2D(latitude: 90, longitude: -180)
         
-        let locations = self.annotations as NSArray
+//        let locations = self.annotations as NSArray
         
-        for element in locations {
+        for element in coordenables {
             let location = element as! Coordenable
             topLeftCoord.longitude = fmin(topLeftCoord.longitude, location.coordinate.longitude)
             topLeftCoord.latitude = fmax(topLeftCoord.latitude, location.coordinate.latitude)
