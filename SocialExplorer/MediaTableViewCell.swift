@@ -20,7 +20,12 @@ class MediaTableViewCell: UITableViewCell {
     
     @IBOutlet weak var starButton: UIButton!
 
+    var mediaSelected: CDMedia!
+    
+    
     func configureUsingMedia(media: CDMedia) {
+        mediaSelected = media
+        
         titleLabel.text = media.title
         detailLabel.text = media.detail
         locationLabel.text = media.parentLocation.name
@@ -34,9 +39,35 @@ class MediaTableViewCell: UITableViewCell {
             self.tumbnailImageView?.image = image
             self.setNeedsDisplay()
         })
+        
+        updateStarButton()
                 
     }
+    
     @IBAction func startPressedAction(sender: UIButton) {
         // TODO: Implement
+        mediaSelected.toogleFavorited()
+        
+        // shared context
+        var sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext!
+        
+        var error: NSError?
+        sharedContext.save(&error)
+        if let error = error {
+            logger.error("Error while marking as favorite")
+        }
+        
+        CoreDataStackManager.sharedInstance().saveContext { hasChanged in
+            // TODO: named: with contants
+            self.updateStarButton()
+        }
+    }
+    
+    func updateStarButton() {
+        if self.mediaSelected.isFavorited() {
+            self.starButton.setImage(UIImage(named: "star-highlighted"), forState: .Normal)
+        } else {
+            self.starButton.setImage(UIImage(named: "star"), forState: .Normal)
+        }
     }
 }

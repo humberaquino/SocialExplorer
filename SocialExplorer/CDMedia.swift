@@ -58,7 +58,7 @@ class CDMedia: NSManagedObject {
     @NSManaged var userId: NSNumber
     @NSManaged var instagramURL: String
     @NSManaged var likesCount: Int
-    @NSManaged var tags: String
+    @NSManaged var tags: String?
     @NSManaged var type: String
     @NSManaged var standardResolutionURL: String
     @NSManaged var state: String
@@ -99,12 +99,16 @@ class CDMedia: NSManagedObject {
         type = dto.mediaType!
         instagramURL = dto.link!
         likesCount = dto.likes!
-        tags = ",".join(dto.tags!)
+        
+        tags = joinTags(dto.tags)
+        
         if let userId = dto.userId {
             self.userId =  NSNumber(integer: userId)
         }
         thumbnailURL = dto.thumbnail!
         standardResolutionURL = dto.image!
+        
+        state = CDMediaState.New.rawValue
     }
     
     
@@ -114,7 +118,12 @@ class CDMedia: NSManagedObject {
     }
     
     var detail: String {
-        return "Tags: \(tags)"
+        if let tags = self.tagsAsCommaSeparatedString() {
+            return tags
+        } else {
+            return "No tags"
+        }
+        
     }
     
     func toogleFavorited() {
@@ -133,5 +142,45 @@ class CDMedia: NSManagedObject {
         }
     }
     
+    
+    func tagsAsCommaSeparatedString() -> String? {
+        if let tagsList = self.tagsAsArray() {
+            let count = tagsList.count
+            if count == 0 {
+                return nil
+            } else {
+                let first = tagsList[0]
+                if count == 1 {
+                    return " #\(first)"
+                } else {
+                    var result = ""
+                    for var i = 1; i < count; ++i {
+                        result += " #\(tagsList[i])"
+                    }
+                    return result
+                }
+            }
+        }
+        return nil
+    }
+    
+    func tagsAsArray() -> [String]? {
+        if let tags = self.tags {
+            if let dataFromString = tags.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
+                let json = JSON(data: dataFromString)
+                return json.arrayObject as? [String]
+            }
+        }
+        return nil
+    }
+    
+    // Workaround to join strings. 
+    // I did this because I had issues with ",".join([String]) when some item in the array has emoji
+    // It blocked the thread and the syncronization didn't end
+    func joinTags(dtoTags: [String]?) -> String? {
+        let json = JSON(dtoTags!)
+        let string  = json.rawString()
+        return string
+    }
     
 }

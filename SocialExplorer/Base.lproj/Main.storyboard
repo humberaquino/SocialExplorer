@@ -120,28 +120,8 @@
                                     <constraint firstAttribute="height" constant="244" id="s10-SP-Zzl"/>
                                 </constraints>
                             </mapView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JTC-sH-CtJ">
-                                <rect key="frame" x="0.0" y="308" width="600" height="44"/>
-                                <items>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="4cI-ie-lM0"/>
-                                    <barButtonItem style="plain" id="q37-Fc-sAv">
-                                        <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" apportionsSegmentWidthsByContent="YES" segmentControlStyle="plain" selectedSegmentIndex="0" id="8xt-AH-k9B">
-                                            <rect key="frame" x="105" y="7" width="350" height="30"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <segments>
-                                                <segment title="All"/>
-                                                <segment title="Instagram"/>
-                                                <segment title="Twitter"/>
-                                                <segment title="Facebook"/>
-                                                <segment title="Foursquare"/>
-                                            </segments>
-                                        </segmentedControl>
-                                    </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="7H6-D7-qse"/>
-                                </items>
-                            </toolbar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="90" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="Cy0-9n-LH1">
-                                <rect key="frame" x="0.0" y="352" width="600" height="248"/>
+                                <rect key="frame" x="0.0" y="308" width="600" height="243"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MediaCell" rowHeight="90" id="Jmz-zs-Of0" customClass="MediaTableViewCell" customModule="SocialExplorer" customModuleProvider="target">
@@ -179,10 +159,10 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="41v-2y-y3t">
-                                                    <rect key="frame" x="562" y="8" width="30" height="30"/>
+                                                    <rect key="frame" x="567" y="8" width="25" height="25"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="width" constant="30" id="4mm-pH-5Oq"/>
-                                                        <constraint firstAttribute="height" constant="30" id="acG-rz-Wai"/>
+                                                        <constraint firstAttribute="width" constant="25" id="4mm-pH-5Oq"/>
+                                                        <constraint firstAttribute="height" constant="25" id="acG-rz-Wai"/>
                                                     </constraints>
                                                     <state key="normal" image="star">
                                                         <color key="titleColor" red="1" green="0.40000000596046448" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -222,28 +202,32 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" apportionsSegmentWidthsByContent="YES" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="x6N-Q4-8m7">
+                                <rect key="frame" x="21" y="272" width="558" height="29"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
+                                <segments>
+                                    <segment title="All"/>
+                                    <segment title="Instagram"/>
+                                    <segment title="Twitter"/>
+                                    <segment title="Facebook"/>
+                                    <segment title="Foursquare"/>
+                                </segments>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="JTC-sH-CtJ" firstAttribute="width" secondItem="gIJ-ah-3HY" secondAttribute="width" id="Cdd-nO-mWP"/>
-                            <constraint firstAttribute="centerY" secondItem="Cy0-9n-LH1" secondAttribute="centerY" constant="-154" id="DvT-H7-VFQ"/>
-                            <constraint firstItem="JTC-sH-CtJ" firstAttribute="centerX" secondItem="1NU-ip-iKZ" secondAttribute="centerX" id="ITZ-ht-KYz"/>
+                            <constraint firstItem="Cy0-9n-LH1" firstAttribute="top" secondItem="1NU-ip-iKZ" secondAttribute="bottom" id="E0b-VA-pWG"/>
+                            <constraint firstItem="x6N-Q4-8m7" firstAttribute="centerX" secondItem="1NU-ip-iKZ" secondAttribute="centerX" id="KbS-iU-av0"/>
+                            <constraint firstItem="hcC-dM-f6B" firstAttribute="top" secondItem="Cy0-9n-LH1" secondAttribute="bottom" id="L14-t7-fCh"/>
                             <constraint firstItem="1NU-ip-iKZ" firstAttribute="top" secondItem="EBv-o0-LMD" secondAttribute="bottom" id="Lm3-8k-1EQ"/>
                             <constraint firstAttribute="width" secondItem="1NU-ip-iKZ" secondAttribute="width" id="O5i-8l-Hjr"/>
                             <constraint firstAttribute="centerX" secondItem="Cy0-9n-LH1" secondAttribute="centerX" id="RW8-aO-1dO"/>
-                            <constraint firstItem="JTC-sH-CtJ" firstAttribute="top" secondItem="1NU-ip-iKZ" secondAttribute="bottom" id="ZWL-O1-8t6"/>
-                            <constraint firstItem="Cy0-9n-LH1" firstAttribute="top" secondItem="JTC-sH-CtJ" secondAttribute="bottom" id="bkF-4J-EuB"/>
+                            <constraint firstItem="x6N-Q4-8m7" firstAttribute="leading" secondItem="gIJ-ah-3HY" secondAttribute="leadingMargin" constant="5" id="eSo-m1-mx9"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="x6N-Q4-8m7" secondAttribute="trailing" constant="5" id="es0-YM-DKI"/>
                             <constraint firstItem="Cy0-9n-LH1" firstAttribute="width" secondItem="gIJ-ah-3HY" secondAttribute="width" id="gx9-7M-CGv"/>
                             <constraint firstAttribute="centerX" secondItem="1NU-ip-iKZ" secondAttribute="centerX" id="iya-bG-lbX"/>
-                            <constraint firstItem="Cy0-9n-LH1" firstAttribute="centerY" secondItem="JTC-sH-CtJ" secondAttribute="centerY" constant="146" id="nCj-yD-ThK"/>
-                            <constraint firstItem="hcC-dM-f6B" firstAttribute="top" secondItem="Cy0-9n-LH1" secondAttribute="bottom" constant="-49" id="ulM-hw-6MN"/>
+                            <constraint firstItem="x6N-Q4-8m7" firstAttribute="top" secondItem="1NU-ip-iKZ" secondAttribute="bottom" constant="-36" id="m5d-85-j8j"/>
                         </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="DvT-H7-VFQ"/>
-                                <exclude reference="ulM-hw-6MN"/>
-                            </mask>
-                        </variation>
                     </view>
                     <connections>
                         <outlet property="mapView" destination="1NU-ip-iKZ" id="LJZ-zP-tF1"/>

@@ -85,7 +85,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncError:", name: SyncManager.SyncError, object: nil)
     }
     
-    func deregisterObservers() {
+    func unregisterObservers() {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManager.SyncComplete, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManager.SyncError, object: nil)
     }
@@ -101,7 +101,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     
     deinit {
-        deregisterObservers()
+        unregisterObservers()
     }
     
     
@@ -174,7 +174,12 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         configureAnnotationView(annotationView)
         
         let detailButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
+        detailButton.setImage(UIImage(named: "getin"), forState: UIControlState.Normal)
         annotationView.rightCalloutAccessoryView = detailButton
+        
+        let otherButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
+        otherButton.setImage(UIImage(named: "gear"), forState: UIControlState.Normal)
+        annotationView.leftCalloutAccessoryView = otherButton
         
         return annotationView
     }
@@ -183,28 +188,18 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         let pinAnnotation = view.annotation as! PinAnnotation
         
         if pinAnnotation.model == CDReference.ModelName {
-//            if selectedPinAnnotation != pinAnnotation {
-                logger.debug("New pin selected")
-                
-                selectedPinAnnotation = pinAnnotation
-                
-                referenceLocationsFetchedResultsController = setupReferenceLocationsFetchedResultsController()!
-                var error: NSError?
-                referenceLocationsFetchedResultsController.performFetch(&error)
-                if let error = error {
-                    logger.error("Error fetching locations for reference: \(error.localizedDescription)")
-                }
-                
-                reloadSelectedReferenceLocationsFromMap()
-                
-            }
-//        }
-        
+
+            logger.debug("New pin selected")
+            
+            self.selectPinAndReloadLocations(pinAnnotation)
+            
+        }
     }
     
     func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
-        if control == view.rightCalloutAccessoryView {
         let annotation = view.annotation as! PinAnnotation
+        if control == view.rightCalloutAccessoryView {
+            
             if annotation.model == CDReference.ModelName {
                 // Mark the selected location to use it while preparing for segue
                 selectedPinAnnotation = annotation
@@ -212,8 +207,56 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
             } else if annotation.model == CDLocation.ModelName {
                 // TODO: Segue to images at location
             }
+        } else if control == view.leftCalloutAccessoryView {
+            // Show options. For noaw just delete reference
+            let reference = self.sharedContext.objectWithID(annotation.objectID) as! CDReference
+            self.showReferenceActionSheet(reference)
         }
     }
+    
+    func deselectCurrentPinAndRemoveLocations() {
+        selectedPinAnnotation = nil
+        removeExistingLocationAnnotationsFromMap()
+    }
+    
+    func selectPinAndReloadLocations(pinAnnotation: PinAnnotation) {
+        selectedPinAnnotation = pinAnnotation
+        
+        referenceLocationsFetchedResultsController = setupReferenceLocationsFetchedResultsController()!
+        var error: NSError?
+        referenceLocationsFetchedResultsController.performFetch(&error)
+        if let error = error {
+            logger.error("Error fetching locations for reference: \(error.localizedDescription)")
+        }
+        
+        reloadSelectedReferenceLocationsFromMap()
+    }
+    
+    // TODO: Move
+    
+    func showReferenceActionSheet(reference: CDReference) {
+        let optionMenu = UIAlertController(title: "Reference '\(reference.name!)'", message: nil, preferredStyle: .ActionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Delete", style: .Default, handler: {
+            (alert: UIAlertAction!) -> Void in
+            self.sharedContext.deleteObject(reference)
+            CoreDataStackManager.sharedInstance().saveContext { hadChanges in
+                self.deselectCurrentPinAndRemoveLocations()
+            }
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: {
+            (alert: UIAlertAction!) -> Void in
+            println("Cancelled")
+        })
+        
+        optionMenu.addAction(deleteAction)
+        optionMenu.addAction(cancelAction)
+
+    
+        self.presentViewController(optionMenu, animated: true, completion: nil)
+    }
+    
     
     func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
             let pinAnnotation = view.annotation as! PinAnnotation
@@ -232,8 +275,6 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
                 reference.markAsNew()
                 
                 logger.debug("Pos reference: \(reference)")
-                
-                
                 
                 sharedContext.save(nil)
                 
@@ -427,27 +468,32 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     func configureAnnotationView(annotationView: MKAnnotationView) {
         let pinAnnotation = annotationView.annotation as! PinAnnotation
         
-        
         if pinAnnotation.model == CDReference.ModelName {
             // Is a reference
             
             let reference = sharedContext.objectWithID(pinAnnotation.objectID) as! CDReference
             
             let referenceLocationCount = reference.locationList.count
+            let withMediaCount = reference.countNonEmptyLocations()
             
             pinAnnotation.title = reference.name
-            pinAnnotation.subtitle = "\(referenceLocationCount) locations"
+            pinAnnotation.subtitle = "\(withMediaCount) locations"
             
             let pinAnnotationView = annotationView as! MKPinAnnotationView
             
-            if referenceLocationCount > 0 {
-                pinAnnotationView.pinColor = MKPinAnnotationColor.Green
+            if reference.state == CDReferenceState.WithLocations.rawValue {
+                pinAnnotationView.pinColor = MKPinAnnotationColor.Purple
                 pinAnnotationView.draggable = true
                 pinAnnotationView.canShowCallout = true
-            } else {
+            } else if reference.state == CDReferenceState.New.rawValue {
                 pinAnnotationView.draggable = false
                 pinAnnotationView.canShowCallout = false
                 pinAnnotationView.pinColor = MKPinAnnotationColor.Red
+            } else {
+                // Ready
+                pinAnnotationView.pinColor = MKPinAnnotationColor.Green
+                pinAnnotationView.draggable = true
+                pinAnnotationView.canShowCallout = true
             }
         } else {
             // Is a location

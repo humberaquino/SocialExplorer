@@ -110,22 +110,49 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
-        let annotation = anObject as! MKAnnotation
         
-        switch type {
-        case .Insert:
-            fetchedResultsChangeInsert(annotation)
-            break
-        case .Delete:
-            fetchedResultsChangeDelete(annotation)
-            break
-        case .Update:
-            fetchedResultsChangeUpdate(annotation)
-            break
-        case .Move:
-            
-            break
+        if anObject is CDMedia {
+            // TODO: Refactor
+            switch type {
+            case .Insert:
+                self.tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
+            case .Update:
+                let cell = self.tableView.cellForRowAtIndexPath(indexPath!) as! MediaTableViewCell
+                self.configureCell(cell, atIndexPath: indexPath!)
+
+                self.tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Fade)
+            case .Move:
+                self.tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Fade)
+                self.tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: UITableViewRowAnimation.Fade)
+            case .Delete:
+                self.tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Fade)
+            default:
+                return
+            }
+        } else if anObject is MKAnnotation {
+            let annotation = anObject as! MKAnnotation
+            switch type {
+            case .Insert:
+                fetchedResultsChangeInsert(annotation)
+                break
+            case .Delete:
+                fetchedResultsChangeDelete(annotation)
+                break
+            case .Update:
+                fetchedResultsChangeUpdate(annotation)
+                break
+            case .Move:
+                
+                break
+            }
         }
+        
+    }
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        self.tableView.beginUpdates()
+    }
+    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        self.tableView.endUpdates()
     }
     
     // MARK: - MKMapViewDelegate
@@ -143,8 +170,8 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
         configurePin(annotationView)
         
-        let detailButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
-        annotationView.rightCalloutAccessoryView = detailButton
+//        let detailButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
+//        annotationView.rightCalloutAccessoryView = detailButton
         
         return annotationView
     }
@@ -284,7 +311,8 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
         let fetchRequest = NSFetchRequest(entityName: CDMedia.ModelName)
         fetchRequest.predicate = NSPredicate(format: "parentLocation.referenceList contains[c] %@", self.selectedReference)
-        fetchRequest.sortDescriptors = []
+        let sortDescriptor = NSSortDescriptor(key: "parentLocation.id", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self

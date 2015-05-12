@@ -14,6 +14,7 @@ import MapKit
 enum CDLocationState: String {
     case New = "new" // It doesn't have media associated
     case Ready = "ready" // Is ready. Has media associated
+    case Failed = "failed"
 }
 
 @objc(CDLocation)
@@ -29,6 +30,7 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         static let Name = "name"
         static let State = "state"
         static let ReferenceList = "referenceList"
+        static let state = "state"
     }
     
     @NSManaged var id: String
@@ -36,12 +38,15 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
     @NSManaged var latitude: Double
     @NSManaged var longitude: Double
     @NSManaged var state: String
-    
+        
     // The list of references that use this location
     @NSManaged var referenceList: NSOrderedSet
     
     // The list of media that this location has
     @NSManaged var mediaList: NSOrderedSet
+    
+    
+    @NSManaged var failureDescription: String?
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -103,5 +108,9 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         return "\(mediaList.count) medias"
     }
     
+    func markAsFailedWithError(error: NSError) {
+        state = CDLocationState.Failed.rawValue
+        failureDescription = error.localizedDescription
+    }
     
 }

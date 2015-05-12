@@ -16,8 +16,8 @@ class MediaViewController: UIViewController {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
-
     @IBOutlet weak var starButton: UIButton!
+    
     var sharedContext: NSManagedObjectContext!
     
     var mediaSelected: CDMedia!
@@ -29,7 +29,8 @@ class MediaViewController: UIViewController {
         sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext
         
         titleLabel.text = mediaSelected.title
-        descriptionLabel.text = mediaSelected.tags
+        
+        descriptionLabel.text = mediaSelected.tagsAsCommaSeparatedString()
         
         let url = NSURL(string: mediaSelected.standardResolutionURL)!
         imageView.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original")) {
@@ -37,6 +38,7 @@ class MediaViewController: UIViewController {
             self.imageView.image = image            
         }
         
+        updateStarButton()
     }
     
     @IBAction func favoriteAction(sender: UIButton) {
@@ -50,12 +52,16 @@ class MediaViewController: UIViewController {
         
         CoreDataStackManager.sharedInstance().saveContext { hasChanged in
             // TODO: named: with contants
-            if self.mediaSelected.isFavorited() {
-                self.starButton.imageView!.image = UIImage(named: "star-highlighted")
-            } else {
-                self.starButton.imageView!.image = UIImage(named: "star")
-            }
+            self.updateStarButton()
         }
         
+    }
+    
+    func updateStarButton() {
+        if self.mediaSelected.isFavorited() {
+            self.starButton.setImage(UIImage(named: "star-highlighted"), forState: .Normal)
+        } else {
+            self.starButton.setImage(UIImage(named: "star"), forState: .Normal)
+        }
     }
 }

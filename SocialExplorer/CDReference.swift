@@ -14,8 +14,10 @@ import SwiftyJSON
 
 enum CDReferenceState: String {
     case New = "new"
-    case WithLocations = "with_locations"
-//    case Ready = "ready"
+    case WithLocations = "with_locations" // Has new locations
+    case Ready = "ready" // Has locations that have media
+    
+    case Failed = "failed" // Some error with the reference. Probably with its locations
 }
 
 
@@ -48,6 +50,11 @@ class CDReference: NSManagedObject, Coordenable {
     @NSManaged var name: String?
     
     @NSManaged var locationList: NSOrderedSet
+    
+    
+    // Failure info
+    @NSManaged var failureDescription: String?
+    
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -121,8 +128,31 @@ class CDReference: NSManagedObject, Coordenable {
     
     func markAsNew() {
         state = CDReferenceState.New.rawValue
+        failureDescription = nil
     }
     
+    func markAsFailedWithError(error: NSError) {
+        state = CDReferenceState.Failed.rawValue
+        failureDescription = error.localizedDescription
+    }
+    
+    func markAsReadyIfPossible() {
+        var ready = true
+        
+        locationList.enumerateObjectsUsingBlock { (obj, index, stop) -> Void in
+            let location = obj as! CDLocation
+            
+            if location.state != CDLocationState.Ready.rawValue {
+                ready = false
+                stop.memory = true
+            }
+        }
+        
+        if ready {
+            state = CDReferenceState.Ready.rawValue
+            failureDescription = nil
+        }
+    }
 //    func isReady() -> Bool {
 //        if state == CDReferenceState.Ready.rawValue {
 //            return true
@@ -141,7 +171,5 @@ class CDReference: NSManagedObject, Coordenable {
 //        state = CDReferenceState.Updating.rawValue
 //    }
     
-//    func markAsReady() {
-//        state = CDReferenceState.Ready.rawValue
-//    }
+
 }
