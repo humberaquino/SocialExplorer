@@ -32,6 +32,8 @@
 		57ADE4301AF6725A004C3690 /* SocialExplorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57ADE42F1AF6725A004C3690 /* SocialExplorerTests.swift */; };
 		57BD6FAC1B03A6E9005765C4 /* FavoriteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BD6FAB1B03A6E9005765C4 /* FavoriteViewController.swift */; };
 		57BD6FAF1B03A718005765C4 /* FavoriteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BD6FAE1B03A718005765C4 /* FavoriteTableViewCell.swift */; };
+		57BD6FB11B03CD6C005765C4 /* FoursquareClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BD6FB01B03CD6C005765C4 /* FoursquareClient.swift */; };
+		57BD6FB31B03CDDF005765C4 /* BaseSocialClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BD6FB21B03CDDF005765C4 /* BaseSocialClient.swift */; };
 		57D2C1B01AFABB46006C3C61 /* CDMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1AF1AFABB46006C3C61 /* CDMedia.swift */; };
 		57D2C1E61AFCF6F4006C3C61 /* InstagramLocationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1E51AFCF6F4006C3C61 /* InstagramLocationDTO.swift */; };
 		57D2C1E91AFD07C2006C3C61 /* ErrorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1E81AFD07C2006C3C61 /* ErrorUtils.swift */; };
@@ -81,6 +83,8 @@
 		57ADE42F1AF6725A004C3690 /* SocialExplorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialExplorerTests.swift; sourceTree = "<group>"; };
 		57BD6FAB1B03A6E9005765C4 /* FavoriteViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteViewController.swift; sourceTree = "<group>"; };
 		57BD6FAE1B03A718005765C4 /* FavoriteTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteTableViewCell.swift; sourceTree = "<group>"; };
+		57BD6FB01B03CD6C005765C4 /* FoursquareClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoursquareClient.swift; sourceTree = "<group>"; };
+		57BD6FB21B03CDDF005765C4 /* BaseSocialClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseSocialClient.swift; sourceTree = "<group>"; };
 		57D2C1AF1AFABB46006C3C61 /* CDMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDMedia.swift; sourceTree = "<group>"; };
 		57D2C1E51AFCF6F4006C3C61 /* InstagramLocationDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstagramLocationDTO.swift; sourceTree = "<group>"; };
 		57D2C1E81AFD07C2006C3C61 /* ErrorUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorUtils.swift; sourceTree = "<group>"; };
@@ -184,8 +188,9 @@
 		5750D9091AF9767000D93191 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				57BD6FB51B03D342005765C4 /* Common */,
 				57D2C1E41AFBFF86006C3C61 /* Instagram */,
-				5750D90A1AF97AF400D93191 /* InstagramClient.swift */,
+				57BD6FB41B03D331005765C4 /* Foursquare */,
 				57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */,
 			);
 			name = Network;
@@ -298,10 +303,27 @@
 			name = Cell;
 			sourceTree = "<group>";
 		};
+		57BD6FB41B03D331005765C4 /* Foursquare */ = {
+			isa = PBXGroup;
+			children = (
+				57BD6FB01B03CD6C005765C4 /* FoursquareClient.swift */,
+			);
+			name = Foursquare;
+			sourceTree = "<group>";
+		};
+		57BD6FB51B03D342005765C4 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				57BD6FB21B03CDDF005765C4 /* BaseSocialClient.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
 		57D2C1E41AFBFF86006C3C61 /* Instagram */ = {
 			isa = PBXGroup;
 			children = (
 				57D2C1E71AFCF8F4006C3C61 /* DTO */,
+				5750D90A1AF97AF400D93191 /* InstagramClient.swift */,
 			);
 			name = Instagram;
 			sourceTree = "<group>";
@@ -509,6 +531,7 @@
 				577D70BD1B014FA9009CF1D1 /* MediaViewController.swift in Sources */,
 				5750D8F81AF93C7500D93191 /* CDReference.swift in Sources */,
 				575510F01B0013AB0065C834 /* PinAnnotation.swift in Sources */,
+				57BD6FB11B03CD6C005765C4 /* FoursquareClient.swift in Sources */,
 				5701E7D31AF67A920021547D /* Config.swift in Sources */,
 				5750D9021AF94B7300D93191 /* ReferenceViewController.swift in Sources */,
 				5701E7CF1AF678C30021547D /* ProjectExtensions.swift in Sources */,
@@ -526,6 +549,7 @@
 				57BD6FAC1B03A6E9005765C4 /* FavoriteViewController.swift in Sources */,
 				570822851AF7FBCD007B09C3 /* SettingsViewController.swift in Sources */,
 				57DC7EBC1B00E6C7004C6FF6 /* MediaTableViewCell.swift in Sources */,
+				57BD6FB31B03CDDF005765C4 /* BaseSocialClient.swift in Sources */,
 				5750D90B1AF97AF400D93191 /* InstagramClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

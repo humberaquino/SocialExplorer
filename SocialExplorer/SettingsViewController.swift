@@ -13,19 +13,21 @@ import OAuthSwift
 import SwiftOverlays
 
 class SettingsViewController: UITableViewController {
+    
+    
+    let ShowMainViewId = "ShowMainView"
+    
     @IBOutlet weak var instagramSwitch: UISwitch!
-    @IBOutlet weak var twitterSwitch: UISwitch!
     @IBOutlet weak var foursquareSwitch: UISwitch!
-    @IBOutlet weak var facebookSwitch: UISwitch!
     
     @IBOutlet weak var instagramLabel: UILabel!
-    @IBOutlet weak var twitterLabel: UILabel!
     @IBOutlet weak var foursquareLabel: UILabel!
-    @IBOutlet weak var facebookLabel: UILabel!
     
     @IBOutlet weak var continueCell: UITableViewCell!
     
     var instagramToken: String!
+    
+    let userSettings = UserSettings.sharedInstance()
     
     // MARK: - View life cycle
     
@@ -39,9 +41,17 @@ class SettingsViewController: UITableViewController {
         
         self.removeAllOverlays()
         
-        let userSettings = UserSettings.sharedInstance()
+        
         
         // Configure UI for Instagram
+        self.configureInstagram()
+        self.configureFoursquare()
+        
+        configureContinueCell()
+    }
+    
+    
+    func configureInstagram() {
         if let instagramSettings =  userSettings.instagram.settings() {
             instagramSwitch.on = instagramSettings.active
             instagramToken = instagramSettings.token
@@ -49,17 +59,15 @@ class SettingsViewController: UITableViewController {
             // No instagram configured
             instagramSwitch.on = false
         }
-        configureContinueCell()
     }
-    
+    func configureFoursquare() {
+        foursquareSwitch.on =  userSettings.foursquare.isServiceActive()
+    }
     
     // MARK: - Actions
     
-    // TODO: This action has to be available only if settings appear after the help pages during the 
-    // first time the app starts
     @IBAction func continueAction(sender: UIButton) {
-        let tabBarController = self.navigationController?.parentViewController as! UITabBarController
-        tabBarController.selectedIndex = 0
+        performSegueWithIdentifier(ShowMainViewId, sender: self)
     }
     
     @IBAction func instagramSwitchChange(sender: UISwitch) {
@@ -85,16 +93,27 @@ class SettingsViewController: UITableViewController {
         }
     }
     
-    @IBAction func twitterSwitchChange(sender: UISwitch) {
-        
-    }
-    
     @IBAction func foursquareSwitchChange(sender: UISwitch) {
         
+        
+        let userSettings = UserSettings.sharedInstance()
+        if sender.on {
+            logger.debug("Enabling Foursquare")
+            userSettings.foursquare.activateService()
+        } else {
+            logger.debug("Disabling Foursquare")
+            userSettings.foursquare.disactivateService()
+        }
+        configureContinueCell()
+      
     }
     
-    @IBAction func facebookSwitchChange(sender: UISwitch) {
-        
+    // MARK: Segue
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == ShowMainViewId {
+            
+        }
     }
     
     
@@ -146,14 +165,15 @@ class SettingsViewController: UITableViewController {
     }
     
     func configureContinueCell() {
-        var hidden = true
         
-        // TODO: Add the other tokens in the condition
-        if instagramSwitch.on {
+        var hidden = true
+    
+        if instagramSwitch.on || foursquareSwitch.on{
             hidden = false
         }
-        
-        continueCell.hidden = hidden
+        if continueCell != nil {
+            continueCell.hidden = hidden
+        }
     }
     
 }

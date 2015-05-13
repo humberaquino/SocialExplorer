@@ -1,8 +1,8 @@
-
-//  InstagramClient.swift
+//
+//  FoursquareClient.swift
 //  SocialExplorer
 //
-//  Created by Humberto Aquino on 5/5/15.
+//  Created by Humberto Aquino on 5/13/15.
 //  Copyright (c) 2015 Humberto Aquino. All rights reserved.
 //
 
@@ -12,19 +12,18 @@ import Alamofire
 import SwiftyJSON
 import ObjectMapper
 
-class InstagramClient: BaseSocialClient {
-    
-    
+class FoursquareClient: BaseSocialClient {
+        
     let userSettings = UserSettings.sharedInstance()
     
     override func serviceActive() -> Bool {
-        return userSettings.instagram.isServiceActive()
+        return userSettings.foursquare.isServiceActive()
     }
     
     override func currentToken() -> String? {
         return userSettings.instagram.currentToken()
     }
-        
+    
     // MARK: - Base requests
     
     // https://api.instagram.com/v1/locations/search?lat=48.858844&lng=2.294351&access_token=ACCESS-TOKEN
@@ -42,7 +41,7 @@ class InstagramClient: BaseSocialClient {
                 ParameterKeys.AccessToken: token
             ]
             
-
+            
             // 1. Request the location list for the provided coordinate
             Alamofire.request(.GET, URI.LocationSearch, parameters: parameters).response {
                 (request, response, data, error) in
@@ -136,100 +135,6 @@ class InstagramClient: BaseSocialClient {
                 }
                 // Success
                 completion(instagramMediaDTOList: result, error: nil)
-            }            
-        }
-    }
-    
-    
-    // Won't work anymore
-    // http://developers.instagram.com/post/116410697261/publishing-guidelines-and-signed-requests
-    func postLikeMedia(mediaId: String, completion:(error: NSError?) -> Void) {
-        self.execWithToken { (token, error) -> Void in
-            let parameters: [String: AnyObject] = [
-                ParameterKeys.AccessToken: token
-            ]
-            
-            // 1. Do the request to get the list of medias for the locationId
-            Alamofire.request(.POST, URI.LikeMedia(mediaId), parameters: parameters).response {
-                (request, response, data, error) in
-                if let error = error {
-                    // Request error
-                    completion(error: error)
-                    return
-                }
-                
-                // 2. Check for responses taht are valid but return errors. E.g. limit exceeded
-                self.updateLimitCount(response)
-                if let remainingRequests = self.xRatelimitRemaining {
-                    if remainingRequests <= 0 {
-                        // Error: Request limit exceeded for client
-                        let error = ErrorUtils.errorForLimitExceeded()
-                        completion(error: error)
-                        return
-                    }
-                }
-                
-                // 3. Parse the "code" element
-                let jsonData = data as! NSData
-                let json = JSON(data: jsonData)
-                let code = json["meta"]["code"].intValue
-                
-                if code != 200 {
-                    completion(error: nil)
-                } else {
-                    let error = ErrorUtils.errorForOAuthPermissionsException(code, message: json["meta"]["error_message"].string)
-                    completion(error: error)
-                }
-                
-                
-            }
-        }
-    }
-    
-    func isMediaLiked(mediaId: String, completion:(isLiked: Bool, error: NSError?) -> Void) {
-        getMedia(mediaId, completion: { (json, error) -> Void in
-            if let error = error {
-                completion(isLiked: false, error: error)
-                return
-            }
-            
-            let isLiked = json["user_has_liked"].boolValue
-            completion(isLiked: isLiked, error: nil)
-        })
-    }
-    
-    func getMedia(mediaId: String, completion:(json: JSON!, error: NSError?) -> Void) {
-        self.execWithToken { (token, error) -> Void in
-            let parameters: [String: AnyObject] = [
-                ParameterKeys.AccessToken: token
-            ]
-            
-            // 1. Do the request to get the list of medias for the locationId
-            Alamofire.request(.GET, URI.Media(mediaId), parameters: parameters).response {
-                (request, response, data, error) in
-                if let error = error {
-                    // Request error
-                    completion(json: nil, error: error)
-                    return
-                }
-                
-                // 2. Check for responses taht are valid but return errors. E.g. limit exceeded
-                self.updateLimitCount(response)
-                if let remainingRequests = self.xRatelimitRemaining {
-                    if remainingRequests <= 0 {
-                        // Error: Request limit exceeded for client
-                        let error = ErrorUtils.errorForLimitExceeded()
-                        completion(json: nil, error: error)
-                        return
-                    }
-                }
-                
-                // 3. Parse the "code" element
-                let jsonData = data as! NSData
-                let baseJson = JSON(data: jsonData)
-                let json = baseJson["data"]
-                
-                completion(json: json, error: nil)
             }
         }
     }
@@ -239,7 +144,7 @@ class InstagramClient: BaseSocialClient {
 
 // MARK: - Constants
 
-extension InstagramClient {
+extension FoursquareClient {
     
     struct ParameterKeys {
         static let Latitude = "lat"
@@ -269,4 +174,3 @@ extension InstagramClient {
     }
     
 }
-

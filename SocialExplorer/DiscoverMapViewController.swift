@@ -115,7 +115,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     @IBAction func zoomToShowAllLocationsAction(sender: UIButton) {
         if referenceLocationsFetchedResultsController != nil {
             if let locations = referenceLocationsFetchedResultsController.fetchedObjects as? [CDLocation] {
-                mapView.zoomToFitCoordenables(locations as NSArray)
+                mapView.zoomToFitCoordenables(locations as NSArray, animated: true)
                 reloadSelectedReferenceLocationsFromMap()
             }
         }
@@ -124,7 +124,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     @IBAction func zoomRoShowAllReferencesAction(sender: UIButton) {
         removeExistingLocationAnnotationsFromMap()
         if let references = fetchedResultsController.fetchedObjects as? [CDReference] {
-            mapView.zoomToFitCoordenables(references as NSArray)
+            mapView.zoomToFitCoordenables(references as NSArray, animated: true)
         }
     }
     

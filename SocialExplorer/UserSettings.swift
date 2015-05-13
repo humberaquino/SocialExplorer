@@ -13,7 +13,8 @@ import MapKit
 class UserSettings {
     
     let discoveryMap = DiscoveryMapSettings()
-    let instagram = InstagramSettings()
+    let instagram = ServiceSettings(service: .Instagram)
+    let foursquare = ServiceSettings(service: .Foursquare)
     
     // Singleton declaration
     static func sharedInstance() -> UserSettings {
@@ -69,15 +70,25 @@ class DiscoveryMapSettings {
     
 }
 
-// MARK: - Instagram
+// MARK: - Service settings
 
-class InstagramSettings {
+class ServiceSettings {
     
-    let ActiveKey = "instagram.active"
-    let TokenKey = "instagram.token"
+    enum ServicesAvailable: String {
+        case Instagram = "instagram"
+        case Foursquare = "foursquare"
+    }
+    
+    let activeKey: String
+    let tokenKey: String
+    
+    init(service: ServicesAvailable) {
+        activeKey = "\(service.rawValue).active"
+        tokenKey = "\(service.rawValue).token"
+    }
     
     func settings() -> (active: Bool, token: String)? {
-        let active = NSUserDefaults.standardUserDefaults().valueForKey(ActiveKey) as? Bool
+        let active = NSUserDefaults.standardUserDefaults().valueForKey(activeKey) as? Bool
         let token = currentToken()
         if active != nil && token != nil {
             return (active: active!, token: token!)
@@ -86,28 +97,27 @@ class InstagramSettings {
     }
     
     func saveTokenAsCurrent(token: String) {
-        NSUserDefaults.standardUserDefaults().setObject(token, forKey: TokenKey)
+        NSUserDefaults.standardUserDefaults().setObject(token, forKey: tokenKey)
         activateService()
     }
     
     func currentToken() -> String? {
-        return NSUserDefaults.standardUserDefaults().valueForKey(TokenKey) as? String
+        return NSUserDefaults.standardUserDefaults().valueForKey(tokenKey) as? String
     }
     
     func disactivateService() {
-        configSocialNetwork(ActiveKey, enable: false)
+        configSocialNetwork(activeKey, enable: false)
     }
     
     func activateService() {
-        configSocialNetwork(ActiveKey, enable: true)
+        configSocialNetwork(activeKey, enable: true)
     }
     
     func isServiceActive() -> Bool {
-        return NSUserDefaults.standardUserDefaults().boolForKey(ActiveKey)
+        return NSUserDefaults.standardUserDefaults().boolForKey(activeKey)
     }
     
     private func configSocialNetwork(key: String, enable: Bool) {
         NSUserDefaults.standardUserDefaults().setBool(enable, forKey: key)
     }
-   
 }

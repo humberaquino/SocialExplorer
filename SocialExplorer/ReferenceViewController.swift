@@ -315,7 +315,7 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
 //        mapView.addAnnotation(selectedReference)
         
-        mapView.zoomToFitCurrentCoordenables()
+        mapView.zoomToFitCurrentCoordenables(false)
     }
     
     @IBAction func optionsAction(sender: UIBarButtonItem) {
@@ -373,13 +373,13 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
 // Ref: http://stackoverflow.com/a/7200744/223228
 extension MKMapView {
     
-    func zoomToFitCurrentCoordenables() {
+    func zoomToFitCurrentCoordenables(animated: Bool) {
         let locations = self.annotations as NSArray
-        zoomToFitCoordenables(locations)
+        zoomToFitCoordenables(locations, animated: animated)
     }
     
     
-    func zoomToFitCoordenables(coordenables: NSArray) {
+    func zoomToFitCoordenables(coordenables: NSArray, animated: Bool) {
         if coordenables.count == 0 {
             return
         }
@@ -411,7 +411,7 @@ extension MKMapView {
         
         region = self.regionThatFits(region)
         
-        self.setRegion(region, animated:false)
+        self.setRegion(region, animated:animated)
     }
 }
 
