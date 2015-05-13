@@ -58,7 +58,7 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
         self.navigationItem.title = mediaSelected.parentLocation.title
         
         // TODO: Arrange this in a common place
-        let span = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+        let span = MKCoordinateSpan(latitudeDelta: 0.004, longitudeDelta: 0.004)
         let region = MKCoordinateRegion(center: pinAnnotation.coordinate, span: span)
         mapView.setRegion(region, animated: false)
         mapView.addAnnotation(pinAnnotation)
@@ -110,6 +110,7 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
                 image = UIImage(named: "heart")
             }
             self.hearthButton.imageView?.image = image
+            self.hearthButton.hidden = false
         }
     }
     

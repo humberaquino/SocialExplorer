@@ -116,6 +116,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         if referenceLocationsFetchedResultsController != nil {
             if let locations = referenceLocationsFetchedResultsController.fetchedObjects as? [CDLocation] {
                 mapView.zoomToFitCoordenables(locations as NSArray)
+                reloadSelectedReferenceLocationsFromMap()
             }
         }
     }

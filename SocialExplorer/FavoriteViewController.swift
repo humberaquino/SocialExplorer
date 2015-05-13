@@ -110,10 +110,10 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
             
             cell.imageView.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original"), failure:{ error in
                 logger.error(error!.localizedDescription)
-            }, success:{
-                image in
-                cell.imageView.image = image
-                cell.setNeedsDisplay()
+                }, success:{
+                    image in
+                    cell.imageView.image = image
+                    cell.setNeedsDisplay()
             })
            
         }
