@@ -29,7 +29,8 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     var longTapRecognizer: UILongPressGestureRecognizer!
     
-    var selectedPinAnnotation: PinAnnotation!
+    var selectedReferencePinAnnotation: PinAnnotation!
+    var selectedLocationPinAnnotation: PinAnnotation!
     
     var referenceLocationsFetchedResultsController: NSFetchedResultsController!
     
@@ -70,6 +71,8 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         mapView.addGestureRecognizer(longTapRecognizer)
+        
+        
         
     }
     
@@ -177,9 +180,12 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         detailButton.setImage(UIImage(named: "getin"), forState: UIControlState.Normal)
         annotationView.rightCalloutAccessoryView = detailButton
         
-        let otherButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
-        otherButton.setImage(UIImage(named: "gear"), forState: UIControlState.Normal)
-        annotationView.leftCalloutAccessoryView = otherButton
+        // Only the reference has teh action sheet
+        if pinAnnotation.model == CDReference.ModelName {
+            let otherButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
+            otherButton.setImage(UIImage(named: "gear"), forState: UIControlState.Normal)
+            annotationView.leftCalloutAccessoryView = otherButton
+        }
         
         return annotationView
     }
@@ -188,11 +194,12 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         let pinAnnotation = view.annotation as! PinAnnotation
         
         if pinAnnotation.model == CDReference.ModelName {
-
             logger.debug("New pin selected")
-            
-            self.selectPinAndReloadLocations(pinAnnotation)
-            
+            self.selectReferencePinAndReloadLocations(pinAnnotation)
+            selectedReferencePinAnnotation = pinAnnotation
+            selectedLocationPinAnnotation = nil
+        } else {
+            selectedLocationPinAnnotation = pinAnnotation
         }
     }
     
@@ -201,26 +208,47 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         if control == view.rightCalloutAccessoryView {
             
             if annotation.model == CDReference.ModelName {
-                // Mark the selected location to use it while preparing for segue
-                selectedPinAnnotation = annotation
-                performSegueWithIdentifier(ReferenceLocationSelectedSegueId, sender: self)
-            } else if annotation.model == CDLocation.ModelName {
-                // TODO: Segue to images at location
+                selectedReferencePinAnnotation = annotation
+            } else {
+                selectedLocationPinAnnotation = annotation
             }
+            
+            performSegueWithIdentifier(ReferenceLocationSelectedSegueId, sender: self)
+//            if annotation.model == CDReference.ModelName {
+//                // Mark the selected location to use it while preparing for segue
+//                
+//            } else if annotation.model == CDLocation.ModelName {
+//                // TODO: Segue to images at location
+//                
+//                
+//                
+//            }
         } else if control == view.leftCalloutAccessoryView {
-            // Show options. For noaw just delete reference
-            let reference = self.sharedContext.objectWithID(annotation.objectID) as! CDReference
-            self.showReferenceActionSheet(reference)
+
+            if annotation.model == CDReference.ModelName {
+                // Mark the selected location to use it while preparing for segue
+                let reference = self.sharedContext.objectWithID(annotation.objectID) as! CDReference
+                self.showReferenceActionSheet(reference) {
+                    // TODO: Move this to a service class
+                    self.sharedContext.deleteObject(reference)
+                    CoreDataStackManager.sharedInstance().saveContext { hadChanges in
+                        self.deselectCurrentPinAndRemoveLocations()
+                    }
+                }
+            }
+            
+           
         }
     }
     
     func deselectCurrentPinAndRemoveLocations() {
-        selectedPinAnnotation = nil
+        selectedReferencePinAnnotation = nil
+        selectedLocationPinAnnotation = nil
         removeExistingLocationAnnotationsFromMap()
     }
     
-    func selectPinAndReloadLocations(pinAnnotation: PinAnnotation) {
-        selectedPinAnnotation = pinAnnotation
+    func selectReferencePinAndReloadLocations(pinAnnotation: PinAnnotation) {
+        selectedReferencePinAnnotation = pinAnnotation
         
         referenceLocationsFetchedResultsController = setupReferenceLocationsFetchedResultsController()!
         var error: NSError?
@@ -234,28 +262,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     // TODO: Move
     
-    func showReferenceActionSheet(reference: CDReference) {
-        let optionMenu = UIAlertController(title: "Reference '\(reference.name!)'", message: nil, preferredStyle: .ActionSheet)
-        
-        let deleteAction = UIAlertAction(title: "Delete", style: .Default, handler: {
-            (alert: UIAlertAction!) -> Void in
-            self.sharedContext.deleteObject(reference)
-            CoreDataStackManager.sharedInstance().saveContext { hadChanges in
-                self.deselectCurrentPinAndRemoveLocations()
-            }
-        })
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: {
-            (alert: UIAlertAction!) -> Void in
-            println("Cancelled")
-        })
-        
-        optionMenu.addAction(deleteAction)
-        optionMenu.addAction(cancelAction)
-
     
-        self.presentViewController(optionMenu, animated: true, completion: nil)
-    }
     
     
     func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
@@ -293,13 +300,21 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == ReferenceLocationSelectedSegueId {
+
             let destination = segue.destinationViewController as! ReferenceViewController
-            destination.selectedReference = sharedContext.objectWithID(selectedPinAnnotation.objectID) as! CDReference
+            
+            if selectedReferencePinAnnotation != nil {
+                destination.selectedReference = sharedContext.objectWithID(selectedReferencePinAnnotation.objectID) as! CDReference
+            }
+            if selectedLocationPinAnnotation != nil {
+                destination.selectedLocation = sharedContext.objectWithID(selectedLocationPinAnnotation.objectID) as! CDLocation
+            }
+            
             destination.hidesBottomBarWhenPushed = true
         }
     }
-    
-    
+
+
     // MARK: - Persistense
     
     func saveNewReferenceUsing(coordinate: CLLocationCoordinate2D) {
@@ -373,7 +388,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         
         removeExistingLocationAnnotationsFromMap()
         
-        if selectedPinAnnotation != nil {
+        if selectedReferencePinAnnotation != nil {
             let locations = referenceLocationsFetchedResultsController.fetchedObjects as! [CDLocation]
             var pinAnnotations = [PinAnnotation]()
             for location in locations {
@@ -446,6 +461,11 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     func fetchedResultsChangeDelete(reference: CDReference) {
         if let pinAnnotation = mapView.findPinAnnotationWithObjectID(reference.objectID) {
             mapView.removeAnnotation(pinAnnotation)
+            
+            if selectedReferencePinAnnotation != nil && pinAnnotation == selectedReferencePinAnnotation {
+                removeExistingLocationAnnotationsFromMap()
+            }
+            
         } else {
             logger.error("Delete called on unexisting pin annotation")
         }
@@ -455,7 +475,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         fetchedResultsChangeDelete(reference)
         let insertedPin = fetchedResultsChangeInsert(reference)
         
-        if selectedPinAnnotation != nil && insertedPin.objectID == selectedPinAnnotation.objectID {
+        if selectedReferencePinAnnotation != nil && insertedPin.objectID == selectedReferencePinAnnotation.objectID {
             mapView.selectAnnotation(insertedPin, animated: false)
         }
         
@@ -541,11 +561,9 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
 extension DiscoverMapViewController {
 
     func selectedReference() -> CDReference? {
-        if selectedPinAnnotation != nil {
-            if selectedPinAnnotation.model == CDReference.ModelName {
-                let reference = sharedContext.objectWithID(selectedPinAnnotation.objectID) as! CDReference
-                return reference
-            }
+        if selectedReferencePinAnnotation != nil {
+            let reference = sharedContext.objectWithID(selectedReferencePinAnnotation.objectID) as! CDReference
+            return reference
         }
         return nil
     }

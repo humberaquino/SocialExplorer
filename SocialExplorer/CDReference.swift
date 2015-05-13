@@ -71,6 +71,8 @@ class CDReference: NSManagedObject, Coordenable {
         longitudeDelta = Default.LongitudeDelta
         
         state = CDReferenceState.New.rawValue
+        
+        name = "No name"
     }
     
     

@@ -19,116 +19,7 @@ class InstagramClient {
     var xRatelimitRemaining: Int?
     
     let userSettings = UserSettings.sharedInstance()
-    
-    
-//    func downloadInstagramLocations(locationCoordinates: [CLLocationCoordinate2D],
-//        completion: (locationDTOs:[InstagramLocationDTO]!, error: NSError!) -> Void) {
-//            
-//            if locationCoordinates.count == 0 {
-//                completion(locationDTOs: [], error: nil)
-//                return
-//            }
-//            
-//            // 1. For every coordinate get the list of locatations
-//            
-//            
-//            var locationDTOs = SynchronizedArray<InstagramLocationDTO>()
-//            var errorList = SynchronizedArray<NSError>()
-//            
-//            let locationsGroup = dispatch_group_create()
-//                        
-//            
-//            for coordinate in locationCoordinates {
-//                dispatch_group_enter(locationsGroup)
-//                
-//                requestLocations(coordinate, completion: { (instagramLocationDTOList, error) -> Void in
-//                    if let error = error {
-//                       errorList.append(error)
-//                    } else {
-//                       locationDTOs.append(ins)
-//                    }
-//                    
-//                    dispatch_group_leave(locationsGroup)
-//                })
-//                
-//                
-//            }
-//            
-//            
-//            
-//            dispatch_group_notify(locationsGroup, SyncManager.sharedInstance().SyncQueue) {
-//                logger.debug("Instagram location group complete")
-//                completion(locationDTOs: locationDTOs, error: error)
-//            }
-//            
-//            
-//            for reference in newReferences {
-//                
-//            }
-//    }
-    
-    
-//    func searchLocationsWithMedia
-    
-    
-//    func searchLocationsAndMediaByLocation(coordiante: CLLocationCoordinate2D, completion: (instagramLocationDTOList: [InstagramLocationDTO]!, error: NSError!) -> Void) {
-//        
-//        // 1. Get the list of locations near the provided coordinate
-//        requestLocations(coordiante, completion: {
-//            (instagramLocationDTOList, error) -> Void in
-//            
-//            var successMediaRecent: [String: JSON]  = [String : JSON]()
-//            var errorMediaRecent: [String: NSError?] = [String : NSError?]()
-//            
-//            if error != nil {
-//                // Error in the location request
-//                completion(instagramLocationDTOList: nil, error: error)
-//                return
-//            }
-//            
-//            if instagramLocationDTOList.count == 0 {
-//                // Complete but without data
-//                completion(instagramLocationDTOList: instagramLocationDTOList, error: nil)
-//                return
-//            }
-//            
-//            
-//            logger.debug("Searching \(instagramLocationDTOList.count) locations in group")
-//            var lastError: NSError?            
-//            var locationsGroup = dispatch_group_create()
-//            for instagramLocationDTO in instagramLocationDTOList {
-//                
-//                let locationId = instagramLocationDTO.id!
-//                
-//                logger.debug("Entering group for location \(locationId)")
-//                dispatch_group_enter(locationsGroup)
-//
-//                
-//                // Download a location
-//                self.requestLocationMediaRecent(locationId) {
-//                    (instagramMediaDTOList: [InstagramMediaRecentDTO]!, error: NSError!) in
-//                    
-//                    if error != nil {
-//                        logger.error("Error in group. Location \(locationId): \(error)")
-//                        lastError = error
-//                    } else {
-//                        instagramLocationDTO.addMedias(instagramMediaDTOList)
-//                    }
-//                    
-//                    logger.debug("Leaving group for location \(locationId)")
-//                    dispatch_group_leave(locationsGroup)
-//                }
-//            }
-//            
-//            dispatch_group_notify(locationsGroup, GlobalUserInitiatedQueue) {
-//                logger.debug("Group completed")
-//                completion(instagramLocationDTOList: instagramLocationDTOList, error: lastError)
-//            }
-//            
-//            
-//        })
-//    }
-    
+        
     // MARK: - Base requests
     
     // https://api.instagram.com/v1/locations/search?lat=48.858844&lng=2.294351&access_token=ACCESS-TOKEN
@@ -240,10 +131,102 @@ class InstagramClient {
                 }
                 // Success
                 completion(instagramMediaDTOList: result, error: nil)
+            }            
+        }
+    }
+    
+    
+    // Won't work anymore
+    // http://developers.instagram.com/post/116410697261/publishing-guidelines-and-signed-requests
+    func postLikeMedia(mediaId: String, completion:(error: NSError?) -> Void) {
+        self.execWithToken { (token, error) -> Void in
+            let parameters: [String: AnyObject] = [
+                ParameterKeys.AccessToken: token
+            ]
+            
+            // 1. Do the request to get the list of medias for the locationId
+            Alamofire.request(.POST, URI.LikeMedia(mediaId), parameters: parameters).response {
+                (request, response, data, error) in
+                if let error = error {
+                    // Request error
+                    completion(error: error)
+                    return
+                }
+                
+                // 2. Check for responses taht are valid but return errors. E.g. limit exceeded
+                self.updateLimitCount(response)
+                if let remainingRequests = self.xRatelimitRemaining {
+                    if remainingRequests <= 0 {
+                        // Error: Request limit exceeded for client
+                        let error = ErrorUtils.errorForLimitExceeded()
+                        completion(error: error)
+                        return
+                    }
+                }
+                
+                // 3. Parse the "code" element
+                let jsonData = data as! NSData
+                let json = JSON(data: jsonData)
+                let code = json["meta"]["code"].intValue
+                
+                if code != 200 {
+                    completion(error: nil)
+                } else {
+                    let error = ErrorUtils.errorForOAuthPermissionsException(code, message: json["meta"]["error_message"].string)
+                    completion(error: error)
+                }
+                
+                
+            }
+        }
+    }
+    
+    func isMediaLiked(mediaId: String, completion:(isLiked: Bool, error: NSError?) -> Void) {
+        getMedia(mediaId, completion: { (json, error) -> Void in
+            if let error = error {
+                completion(isLiked: false, error: error)
+                return
             }
             
+            let isLiked = json["user_has_liked"].boolValue
+            completion(isLiked: isLiked, error: nil)
+        })
+    }
+    
+    func getMedia(mediaId: String, completion:(json: JSON!, error: NSError?) -> Void) {
+        self.execWithToken { (token, error) -> Void in
+            let parameters: [String: AnyObject] = [
+                ParameterKeys.AccessToken: token
+            ]
+            
+            // 1. Do the request to get the list of medias for the locationId
+            Alamofire.request(.GET, URI.Media(mediaId), parameters: parameters).response {
+                (request, response, data, error) in
+                if let error = error {
+                    // Request error
+                    completion(json: nil, error: error)
+                    return
+                }
+                
+                // 2. Check for responses taht are valid but return errors. E.g. limit exceeded
+                self.updateLimitCount(response)
+                if let remainingRequests = self.xRatelimitRemaining {
+                    if remainingRequests <= 0 {
+                        // Error: Request limit exceeded for client
+                        let error = ErrorUtils.errorForLimitExceeded()
+                        completion(json: nil, error: error)
+                        return
+                    }
+                }
+                
+                // 3. Parse the "code" element
+                let jsonData = data as! NSData
+                let baseJson = JSON(data: jsonData)
+                let json = baseJson["data"]
+                
+                completion(json: json, error: nil)
+            }
         }
-        
     }
     
 }
@@ -306,10 +289,18 @@ extension InstagramClient {
     }
     
     struct URI {
-        static let LocationSearch = "https://api.instagram.com/v1/locations/search"
+        static let BaseSecureURL = "https://api.instagram.com/v1"
+        static let LocationSearch = "\(BaseSecureURL)/locations/search"
         
         static func LocationMediaRecentWithLocationId(locationId: String) -> String {
-            return "https://api.instagram.com/v1/locations/\(locationId)/media/recent"
+            return "\(BaseSecureURL)/locations/\(locationId)/media/recent"
+        }
+        static func Media(mediaId: String) -> String {
+            return "\(BaseSecureURL)/media/\(mediaId)"
+        }
+        
+        static func LikeMedia(mediaId: String) -> String {
+            return "\(BaseSecureURL)/media/\(mediaId)/likes"
         }
     }
     

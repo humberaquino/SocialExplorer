@@ -12,6 +12,11 @@ import Foundation
 
 struct ErrorUtils {
     
+    
+    static func errorForOAuthPermissionsException(code: Int, message: String?) -> NSError {
+        return errorWithMessage("Instagram permission error (Code: \(code). \(message))", domain:.OAuth, code:.InstagramOAuthException)
+    }
+    
     static func errorForInstagramDisabled() -> NSError {
         return errorWithMessage("Instagram disabled", domain:.Service, code:.InstagramServiceDisabled)
     }    
@@ -44,6 +49,7 @@ enum ErrorDomain: String {
     case InstagramClient = "InstagramClient"
     case Geocoder = "Geocoder"
     case Service = "Service"
+    case OAuth = "OAuth"
 }
 
 enum ErrorCode: Int {
@@ -52,4 +58,5 @@ enum ErrorCode: Int {
     case GeocoderReturnedEmptyPlacemarks = 200
     
     case InstagramServiceDisabled = 300
+    case InstagramOAuthException = 301
 }

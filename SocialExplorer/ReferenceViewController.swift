@@ -25,6 +25,7 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     var sharedContext: NSManagedObjectContext!
     
     var selectedReference: CDReference!
+    var selectedLocation: CDLocation!
     var selectedMedia: CDMedia!
     
     var tapRecognizer: UITapGestureRecognizer!
@@ -44,8 +45,7 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         tableView.delegate = self
         tableView.dataSource = self
         
-        
-        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleTapOnMapGesture:")
+        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleTapOnMapGesture:")             
         
         // TODO: Handle the error with a alertview
         // Do the initial fetch
@@ -83,6 +83,12 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
 //        mapView.setRegion(region, animated: true)
         
         reloadAnnotationsToMapViewFromFetchedResults()
+        
+        
+        if selectedLocation != nil {
+            mapView.selectAnnotation(selectedLocation, animated: true)
+            //            selectFirstMediaInLocation(selectedLocation)
+        }
         
 //        mapView.addAnnotation(selectedReference)
     }
@@ -195,6 +201,12 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     func mapView(mapView: MKMapView!, didSelectAnnotationView view: MKAnnotationView!) {
         let location = view.annotation as! CDLocation
          logger.debug("Annotation selected")
+        
+        self.selectFirstMediaInLocation(location)
+      
+    }
+    
+    func selectFirstMediaInLocation(location: CDLocation) {
         if let firstObject = location.mediaList.firstObject as? CDMedia {
             if let indexPath = mediaFetchedResultsController.indexPathForObject(firstObject) {
                 if !annotationProgrammaticallySelected {
@@ -204,7 +216,6 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         }
         // FIXME
         annotationProgrammaticallySelected = false
-      
     }
     
     func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -307,6 +318,17 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         mapView.zoomToFitCurrentCoordenables()
     }
     
+    @IBAction func optionsAction(sender: UIBarButtonItem) {
+        
+        self.showReferenceActionSheet(selectedReference) {
+            self.sharedContext.deleteObject(self.selectedReference)
+//            self.dismissViewControllerAnimated(true, completion: nil)
+//            self.navigationController?.popToRootViewControllerAnimated(true)
+            self.navigationController?.popViewControllerAnimated(true)
+        }
+        
+    }
+    
     lazy var mediaFetchedResultsController: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: CDMedia.ModelName)
@@ -389,7 +411,7 @@ extension MKMapView {
         
         region = self.regionThatFits(region)
         
-        self.setRegion(region, animated:true)
+        self.setRegion(region, animated:false)
     }
 }
 

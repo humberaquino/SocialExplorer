@@ -10,17 +10,28 @@ import Foundation
 import UIKit
 import Haneke
 import CoreData
+import MapKit
 
-class MediaViewController: UIViewController {
+class MediaViewController: UIViewController, MKMapViewDelegate {
+    
+    let MediaReusableAnnotationId = "MediaReusableAnnotation"
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var starButton: UIButton!
+    @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var hearthButton: UIButton!
+    
+    var mediaLiked: Bool?
     
     var sharedContext: NSManagedObjectContext!
     
     var mediaSelected: CDMedia!
+    
+    var instagramClient = InstagramClient()
+    
+    // MARK: - View life cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()        
@@ -29,8 +40,10 @@ class MediaViewController: UIViewController {
         sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext
         
         titleLabel.text = mediaSelected.title
-        
         descriptionLabel.text = mediaSelected.tagsAsCommaSeparatedString()
+        
+        
+        self.setupMediaLiked()
         
         let url = NSURL(string: mediaSelected.standardResolutionURL)!
         imageView.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original")) {
@@ -38,8 +51,33 @@ class MediaViewController: UIViewController {
             self.imageView.image = image            
         }
         
+        mapView.delegate = self
+        
+        let pinAnnotation = PinAnnotation(objectID: mediaSelected.objectID, coordinate: mediaSelected.coordinate, model: CDMedia.ModelName)
+        
+        self.navigationItem.title = mediaSelected.parentLocation.title
+        
+        // TODO: Arrange this in a common place
+        let span = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+        let region = MKCoordinateRegion(center: pinAnnotation.coordinate, span: span)
+        mapView.setRegion(region, animated: false)
+        mapView.addAnnotation(pinAnnotation)
+        
+//        mapView.selectAnnotation(pinAnnotation, animated: false)
+        
         updateStarButton()
     }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        
+    }
+    
+    
+    
+    
+    // MARK: - Actions
     
     @IBAction func favoriteAction(sender: UIButton) {
         mediaSelected.toogleFavorited()
@@ -56,6 +94,55 @@ class MediaViewController: UIViewController {
         }
         
     }
+    
+    func setupMediaLiked() {
+        instagramClient.isMediaLiked(mediaSelected.id) { (isLiked, error) in
+            if let error = error {
+                self.showMessageWithTitle("Could not get the media info", message: error.localizedDescription)
+                return
+            }
+            
+            var image: UIImage!
+            
+            if isLiked {
+                image = UIImage(named: "heart-red")
+            } else {
+                image = UIImage(named: "heart")
+            }
+            self.hearthButton.imageView?.image = image
+        }
+    }
+    
+    // MARK: - MKMapViewDelegate
+    
+    func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
+        var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(MediaReusableAnnotationId)
+        
+        
+        if annotationView != nil {
+            annotationView.annotation = annotation
+        } else {
+            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: MediaReusableAnnotationId)            
+        }
+        
+        configurePin(annotationView)
+        
+        //        let detailButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
+        //        annotationView.rightCalloutAccessoryView = detailButton
+        
+        return annotationView
+    }
+    
+    func configurePin(annotationView: MKAnnotationView) {
+        // TODO: This should be in a class
+        var image = UIImage(named: "MiniInstagram")
+        
+        annotationView.image = image
+        annotationView.canShowCallout = true
+    }
+    
+    
+    // MARK: Utils
     
     func updateStarButton() {
         if self.mediaSelected.isFavorited() {

@@ -44,6 +44,8 @@ struct Instagram {
     struct URL {
         static let Authorize = "https://api.instagram.com/oauth/authorize/" //?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
         
+        static let AccessToken = "https://api.instagram.com/oauth/access_token/"
+        
         // Builds authorizarion URL 
         // https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
         static func buildAuthorizeClientURL() -> String {

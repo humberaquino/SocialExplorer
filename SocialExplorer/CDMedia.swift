@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 import SwiftyJSON
-
+import CoreLocation
 
 enum CDMediaState: String {
     case New = "new"
@@ -50,7 +50,8 @@ class CDMedia: NSManagedObject {
     }
     
     struct PropertyKeys {
-         static let ParentLocation = "parentLocation"
+        static let ParentLocation = "parentLocation"
+        static let State = "state"
     }
     
     @NSManaged var id: String
@@ -134,6 +135,7 @@ class CDMedia: NSManagedObject {
         }
     }
     
+    
     func isFavorited() -> Bool {
         if state == CDMediaState.Favorited.rawValue {
             return true
@@ -183,4 +185,7 @@ class CDMedia: NSManagedObject {
         return string
     }
     
+    var coordinate: CLLocationCoordinate2D {
+        return parentLocation.coordinate
+    }
 }

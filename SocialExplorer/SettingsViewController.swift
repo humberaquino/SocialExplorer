@@ -105,14 +105,16 @@ class SettingsViewController: UITableViewController {
         self.startAuthWithMessage("Authenticating", disablingSwitch:instagramSwitch)
         
         // Connect
-        let oauthswift = OAuth2Swift(consumerKey: Config.Instagram.ClientId, consumerSecret: Config.Instagram.ClientSecret, authorizeUrl: Instagram.URL.Authorize, responseType: Instagram.ParameteValues.Token)
+        let oauthswift = OAuth2Swift(consumerKey: Config.Instagram.ClientId, consumerSecret: Config.Instagram.ClientSecret, authorizeUrl: Instagram.URL.Authorize, accessTokenUrl: Instagram.URL.AccessToken, responseType: Instagram.ParameteValues.Code)
+        
         
         // FIXME
         let url = NSURL(string: "SocialExplorer://oauth-callback/instagram")!
         
         let userSettings = UserSettings.sharedInstance()
         
-        oauthswift.authorizeWithCallbackURL(url, scope: "likes+comments", state: "INSTAGRAM",
+        let state: String = generateStateWithLength(20) as String
+        oauthswift.authorizeWithCallbackURL(url, scope: "basic+likes", state: state,
             success: { (credential, response) -> Void in
                 
                 // Save token and and instagram enabled state

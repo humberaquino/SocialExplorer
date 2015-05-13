@@ -120,13 +120,13 @@ class SyncManager: NSObject {
             (instagramLocationDTOList, error) -> Void in
             self.privateContext.performBlock {
                 if let error = error {
-                    logger.error("\(reference.name!) -> FAILED: \(error.localizedDescription)")
+                    logger.error("\(reference.name) -> FAILED: \(error.localizedDescription)")
                     reference.markAsFailedWithError(error)
                     dispatch_group_leave(dispatchGroup)
                     return
                 }
                 
-                logger.debug("\(reference.name!) -> \(instagramLocationDTOList.count) locations")
+                logger.debug("\(reference.name) -> \(instagramLocationDTOList.count) locations")
                 
 
                 // Create locations for each instagram location

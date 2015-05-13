@@ -33,34 +33,25 @@ extension UIViewController {
         self.presentViewController(alert, animated: true, completion: nil)
     }
     
-    
-    func showActionSheet(title: String?, message: String?, actions:[UIAlertAction]) {
-        // 1
-        let optionMenu = UIAlertController(title: title, message: message, preferredStyle: .ActionSheet)
+    func showReferenceActionSheet(reference: CDReference, onDelete:() -> Void) {
+        let optionMenu = UIAlertController(title: "Reference '\(reference.name!)'", message: nil, preferredStyle: .ActionSheet)
         
-        // 2
         let deleteAction = UIAlertAction(title: "Delete", style: .Default, handler: {
             (alert: UIAlertAction!) -> Void in
-            println("File Deleted")
-        })
-        let saveAction = UIAlertAction(title: "Save", style: .Default, handler: {
-            (alert: UIAlertAction!) -> Void in
-            println("File Saved")
+            onDelete()
+            
+            
         })
         
-        //
         let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: {
             (alert: UIAlertAction!) -> Void in
             println("Cancelled")
         })
         
-        
-        // 4
         optionMenu.addAction(deleteAction)
-        optionMenu.addAction(saveAction)
         optionMenu.addAction(cancelAction)
         
-        // 5
+        
         self.presentViewController(optionMenu, animated: true, completion: nil)
     }
 
