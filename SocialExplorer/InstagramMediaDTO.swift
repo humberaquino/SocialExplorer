@@ -62,7 +62,7 @@ class InstagramMediaRecentDTO: Mappable {
     var thumbnail: String? // 150px
     var image: String? // 612px
 
-    var parent: InstagramLocationDTO?
+//    var parent: InstagramLocationDTO?
     
     required init?(_ map: Map) {
         mapping(map)

@@ -13,6 +13,8 @@
 		5701E7D11AF67A080021547D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5701E7D01AF67A080021547D /* Utils.swift */; };
 		5701E7D31AF67A920021547D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5701E7D21AF67A920021547D /* Config.swift */; };
 		570822851AF7FBCD007B09C3 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 570822841AF7FBCD007B09C3 /* SettingsViewController.swift */; };
+		571539991B03FDC200EE390D /* FoursquareLocationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571539981B03FDC200EE390D /* FoursquareLocationDTO.swift */; };
+		5715399B1B04003400EE390D /* FoursquarePhotoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5715399A1B04003400EE390D /* FoursquarePhotoDTO.swift */; };
 		572E66621AF80F7600591A48 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572E66611AF80F7600591A48 /* UserSettings.swift */; };
 		5750D8F51AF82ADD00D93191 /* DiscoverMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D8F41AF82ADD00D93191 /* DiscoverMapViewController.swift */; };
 		5750D8F81AF93C7500D93191 /* CDReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D8F71AF93C7500D93191 /* CDReference.swift */; };
@@ -60,6 +62,8 @@
 		5701E7D01AF67A080021547D /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		5701E7D21AF67A920021547D /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		570822841AF7FBCD007B09C3 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		571539981B03FDC200EE390D /* FoursquareLocationDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoursquareLocationDTO.swift; sourceTree = "<group>"; };
+		5715399A1B04003400EE390D /* FoursquarePhotoDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoursquarePhotoDTO.swift; sourceTree = "<group>"; };
 		572E66611AF80F7600591A48 /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		5750D8F41AF82ADD00D93191 /* DiscoverMapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverMapViewController.swift; sourceTree = "<group>"; };
 		5750D8F71AF93C7500D93191 /* CDReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDReference.swift; sourceTree = "<group>"; };
@@ -147,6 +151,15 @@
 			name = Start;
 			sourceTree = "<group>";
 		};
+		571539971B03FDB900EE390D /* DTO */ = {
+			isa = PBXGroup;
+			children = (
+				571539981B03FDC200EE390D /* FoursquareLocationDTO.swift */,
+				5715399A1B04003400EE390D /* FoursquarePhotoDTO.swift */,
+			);
+			name = DTO;
+			sourceTree = "<group>";
+		};
 		5750D8F61AF92E8200D93191 /* Discovery map */ = {
 			isa = PBXGroup;
 			children = (
@@ -159,6 +172,7 @@
 		5750D8FC1AF93CB700D93191 /* Core Data */ = {
 			isa = PBXGroup;
 			children = (
+				5750D8F91AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld */,
 				5750D8FD1AF93CD600D93191 /* Model */,
 				5750D9001AF94AAC00D93191 /* Core */,
 			);
@@ -171,7 +185,6 @@
 				5750D8F71AF93C7500D93191 /* CDReference.swift */,
 				57D2C1EC1AFD7339006C3C61 /* CDLocation.swift */,
 				57D2C1AF1AFABB46006C3C61 /* CDMedia.swift */,
-				5750D8F91AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld */,
 				57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */,
 			);
 			name = Model;
@@ -188,10 +201,10 @@
 		5750D9091AF9767000D93191 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */,
 				57BD6FB51B03D342005765C4 /* Common */,
 				57D2C1E41AFBFF86006C3C61 /* Instagram */,
 				57BD6FB41B03D331005765C4 /* Foursquare */,
-				57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -306,6 +319,7 @@
 		57BD6FB41B03D331005765C4 /* Foursquare */ = {
 			isa = PBXGroup;
 			children = (
+				571539971B03FDB900EE390D /* DTO */,
 				57BD6FB01B03CD6C005765C4 /* FoursquareClient.swift */,
 			);
 			name = Foursquare;
@@ -529,8 +543,10 @@
 				5750D8FB1AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld in Sources */,
 				57D2C1B01AFABB46006C3C61 /* CDMedia.swift in Sources */,
 				577D70BD1B014FA9009CF1D1 /* MediaViewController.swift in Sources */,
+				5715399B1B04003400EE390D /* FoursquarePhotoDTO.swift in Sources */,
 				5750D8F81AF93C7500D93191 /* CDReference.swift in Sources */,
 				575510F01B0013AB0065C834 /* PinAnnotation.swift in Sources */,
+				571539991B03FDC200EE390D /* FoursquareLocationDTO.swift in Sources */,
 				57BD6FB11B03CD6C005765C4 /* FoursquareClient.swift in Sources */,
 				5701E7D31AF67A920021547D /* Config.swift in Sources */,
 				5750D9021AF94B7300D93191 /* ReferenceViewController.swift in Sources */,

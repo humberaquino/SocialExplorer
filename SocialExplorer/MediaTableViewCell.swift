@@ -16,8 +16,7 @@ class MediaTableViewCell: UITableViewCell {
     @IBOutlet weak var tumbnailImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var detailLabel: UILabel!
-    @IBOutlet weak var locationLabel: UILabel!
-    
+    @IBOutlet weak var locationLabel: UILabel!    
     @IBOutlet weak var starButton: UIButton!
 
     var mediaSelected: CDMedia!

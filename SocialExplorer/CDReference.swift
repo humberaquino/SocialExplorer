@@ -138,7 +138,7 @@ class CDReference: NSManagedObject, Coordenable {
         failureDescription = error.localizedDescription
     }
     
-    func markAsReadyIfPossible() {
+    func markAsReadyIfPossible() -> Bool {
         var ready = true
         
         locationList.enumerateObjectsUsingBlock { (obj, index, stop) -> Void in
@@ -153,6 +153,9 @@ class CDReference: NSManagedObject, Coordenable {
         if ready {
             state = CDReferenceState.Ready.rawValue
             failureDescription = nil
+            return true
+        } else {
+            return false
         }
     }
 //    func isReady() -> Bool {

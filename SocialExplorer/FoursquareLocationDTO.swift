@@ -1,31 +1,21 @@
 //
-//  InstagramLocation.swift
+//  FoursquareLocationDTO.swift
 //  SocialExplorer
 //
-//  Created by Humberto Aquino on 5/7/15.
+//  Created by Humberto Aquino on 5/13/15.
 //  Copyright (c) 2015 Humberto Aquino. All rights reserved.
 //
 
 import Foundation
+
 import ObjectMapper
 
-// Represents a single instagram location
-
-// {
-//    "id": "788029",
-//    "latitude": 48.858844300000001,
-//    "longitude": 2.2943506,
-//    "name": "Eiffel Tower, Paris"
-// }
-
-// Ref: https://instagram.com/developer/endpoints/locations/
-
-class InstagramLocationDTO: Mappable {
+class FoursquareLocationDTO: Mappable {
     
     struct Keys {
         static let Id = "id"
-        static let Latitude = "latitude"
-        static let Longitude = "longitude"
+        static let Latitude = "location.lat"
+        static let Longitude = "location.lng"
         static let Name = "name"
     }
     
@@ -67,7 +57,7 @@ class InstagramLocationDTO: Mappable {
             CDLocation.Keys.Latitude: self.latitude!,
             CDLocation.Keys.Longitude: self.longitude!,
             CDLocation.Keys.Name: self.name!,
-            CDLocation.Keys.LocationType: CDLocationType.Instagram.rawValue
+            CDLocation.Keys.LocationType: CDLocationType.Foursquare.rawValue
         ]
         return dict
     }

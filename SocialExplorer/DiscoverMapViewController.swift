@@ -522,7 +522,14 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
             pinAnnotation.title = location.name
             pinAnnotation.subtitle = location.subtitle
             
-            var image = UIImage(named: "MiniInstagram")
+            
+            var image: UIImage!
+            if location.locationType == CDLocationType.Instagram.rawValue {
+                image = UIImage(named: "MiniInstagram")
+            } else {
+                image = UIImage(named: "MiniFoursquare")
+                
+            }
             
             annotationView.image = image
             annotationView.canShowCallout = true

@@ -43,9 +43,12 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
         descriptionLabel.text = mediaSelected.tagsAsCommaSeparatedString()
         
         
+        
+        // FIXME
         self.setupMediaLiked()
         
-        let url = NSURL(string: mediaSelected.standardResolutionURL)!
+        
+        let url = NSURL(string: mediaSelected.imageURL)!
         imageView.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original")) {
             (image) -> () in
             self.imageView.image = image            
@@ -96,6 +99,9 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
     }
     
     func setupMediaLiked() {
+        
+        
+        
         instagramClient.isMediaLiked(mediaSelected.id) { (isLiked, error) in
             if let error = error {
                 self.showMessageWithTitle("Could not get the media info", message: error.localizedDescription)
@@ -136,7 +142,15 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
     
     func configurePin(annotationView: MKAnnotationView) {
         // TODO: This should be in a class
-        var image = UIImage(named: "MiniInstagram")
+        
+        var image: UIImage!
+        // FIXME
+        if mediaSelected.parentLocation.locationType == CDLocationType.Instagram.rawValue {
+            image = UIImage(named: "MiniInstagram")
+        } else {
+            image = UIImage(named: "MiniFoursquare")
+        }
+       
         
         annotationView.image = image
         annotationView.canShowCallout = true

@@ -235,7 +235,16 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     
     
     func configurePin(annotationView: MKAnnotationView) {
-        var image = UIImage(named: "MiniInstagram")
+       
+        let location = annotationView.annotation as! CDLocation
+                
+        var image: UIImage!
+        // FIXME
+        if location.locationType == CDLocationType.Instagram.rawValue {
+            image = UIImage(named: "MiniInstagram")
+        } else {
+            image = UIImage(named: "MiniFoursquare")
+        }
         
         annotationView.image = image
         annotationView.canShowCallout = true

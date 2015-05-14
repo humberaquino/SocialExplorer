@@ -56,12 +56,12 @@ class CDMedia: NSManagedObject {
     
     @NSManaged var id: String
     @NSManaged var thumbnailURL: String
-    @NSManaged var userId: NSNumber
-    @NSManaged var instagramURL: String
-    @NSManaged var likesCount: Int
+//    @NSManaged var userId: NSNumber
+//    @NSManaged var instagramURL: String
+//    @NSManaged var likesCount: Int
     @NSManaged var tags: String?
     @NSManaged var type: String
-    @NSManaged var standardResolutionURL: String
+    @NSManaged var imageURL: String
     @NSManaged var state: String
     
     @NSManaged var parentLocation: CDLocation
@@ -70,44 +70,52 @@ class CDMedia: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
-    // TODO: Change for DTO constructor?
-    init(json: JSON, context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entityForName(CDMedia.ModelName, inManagedObjectContext: context)!
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
-        
-        id = json[Keys.Id].stringValue
-        
-        type = json[Keys.TypeName].stringValue
-                
-        instagramURL = json[Keys.Link].stringValue
-        likesCount = json[Keys.Likes][Keys.Likes_Count].intValue
-        let tagsArray = json[Keys.Tags].arrayObject as! [String]
-        tags = ",".join(tagsArray)
-        
-        userId = json[Keys.User][Keys.Id].intValue
-        
-        thumbnailURL = json[Keys.Images][Keys.Images_Thumbnail].stringValue
-        standardResolutionURL = json[Keys.Images][Keys.Images_StandardResolution].stringValue
-        
-        state = CDMediaState.New.rawValue
-    }
+//    // TODO: Change for DTO constructor?
+//    init(json: JSON, context: NSManagedObjectContext) {
+//        let entity = NSEntityDescription.entityForName(CDMedia.ModelName, inManagedObjectContext: context)!
+//        super.init(entity: entity, insertIntoManagedObjectContext: context)
+//        
+//        id = json[Keys.Id].stringValue
+//        
+//        type = json[Keys.TypeName].stringValue
+//                
+//        instagramURL = json[Keys.Link].stringValue
+////        likesCount = json[Keys.Likes][Keys.Likes_Count].intValue
+//        let tagsArray = json[Keys.Tags].arrayObject as! [String]
+//        tags = ",".join(tagsArray)
+//        
+////        userId = json[Keys.User][Keys.Id].intValue
+//        
+//        thumbnailURL = json[Keys.Images][Keys.Images_Thumbnail].stringValue
+//        imageURL = json[Keys.Images][Keys.Images_StandardResolution].stringValue
+//        
+//        state = CDMediaState.New.rawValue
+//    }
     
     init(dto: InstagramMediaRecentDTO, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName(CDMedia.ModelName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         id = dto.id!
-        type = dto.mediaType!
-        instagramURL = dto.link!
-        likesCount = dto.likes!
-        
+        // FIXME
+        type = "instagram"
         tags = joinTags(dto.tags)
-        
-        if let userId = dto.userId {
-            self.userId =  NSNumber(integer: userId)
-        }
         thumbnailURL = dto.thumbnail!
-        standardResolutionURL = dto.image!
+        imageURL = dto.image!
+        
+        state = CDMediaState.New.rawValue
+    }
+    
+    init(dto: FoursquarePhotoDTO, context: NSManagedObjectContext) {
+        let entity = NSEntityDescription.entityForName(CDMedia.ModelName, inManagedObjectContext: context)!
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
+        
+        id = dto.id!
+        // FIXME
+        type = "foursquare"
+       
+        imageURL = dto.imagePath()!
+        thumbnailURL = dto.thumbnailImagePath()!
         
         state = CDMediaState.New.rawValue
     }
@@ -115,9 +123,11 @@ class CDMedia: NSManagedObject {
     
     var title: String {
         // TODO: Use better info
-        return "Instagram image with \(likesCount) likes"
+        return "\(type) image"
     }
     
+    
+    // FIXME
     var detail: String {
         if let tags = self.tagsAsCommaSeparatedString() {
             return tags

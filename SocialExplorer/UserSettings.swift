@@ -11,7 +11,6 @@ import MapKit
 
 // Singleton used persist and obtain user settings
 class UserSettings {
-    
     let discoveryMap = DiscoveryMapSettings()
     let instagram = ServiceSettings(service: .Instagram)
     let foursquare = ServiceSettings(service: .Foursquare)
@@ -24,6 +23,12 @@ class UserSettings {
         return Static.instance
     }
     
+    func noServiceAvailable() -> Bool {
+        if instagram.isServiceActive() || foursquare.isServiceActive() {
+            return false
+        }
+        return true
+    }
 }
 
 

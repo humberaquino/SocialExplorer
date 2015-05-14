@@ -17,6 +17,11 @@ enum CDLocationState: String {
     case Failed = "failed"
 }
 
+enum CDLocationType: String {
+    case Instagram = "instagram"
+    case Foursquare = "foursquare"
+}
+
 @objc(CDLocation)
 
 class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
@@ -31,6 +36,7 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         static let State = "state"
         static let ReferenceList = "referenceList"
         static let state = "state"
+        static let LocationType = "locationType"
     }
     
     @NSManaged var id: String
@@ -38,7 +44,9 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
     @NSManaged var latitude: Double
     @NSManaged var longitude: Double
     @NSManaged var state: String
-        
+    
+    @NSManaged var locationType: String
+    
     // The list of references that use this location
     @NSManaged var referenceList: NSOrderedSet
     
@@ -61,20 +69,11 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         latitude = dictionary[Keys.Latitude] as! Double
         longitude = dictionary[Keys.Longitude] as! Double
         
+        locationType = dictionary[Keys.LocationType] as! String
+        
         state = CDLocationState.New.rawValue
     }
     
-    init(json: JSON, context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entityForName(CDLocation.ModelName, inManagedObjectContext: context)!
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
-        
-        id = json[Keys.Id].stringValue
-        name = json[Keys.Name].stringValue
-        latitude = json[Keys.Latitude].doubleValue
-        longitude = json[Keys.Longitude].doubleValue
-        
-        state = CDLocationState.New.rawValue
-    }
     
     func addReference(reference: CDReference) {
         referenceList = referenceList.cloneAndAddObject(reference)
@@ -83,9 +82,7 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
     func addMedia(media: CDMedia) {
         mediaList = mediaList.cloneAndAddObject(media)
     }
-    
- 
-    
+        
     override var description: String {
         return "[\(id)]: \(name)"
     }

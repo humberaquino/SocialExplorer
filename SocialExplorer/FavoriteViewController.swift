@@ -106,7 +106,7 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
     func configureCell(cell: FavoriteCollectionViewCell, atIndexPath indexPath: NSIndexPath) {
         
         let media = self.fetchedResultsController.objectAtIndexPath(indexPath) as! CDMedia
-        if let url = NSURL(string: media.standardResolutionURL) {
+        if let url = NSURL(string: media.imageURL) {
             
             cell.imageView.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original"), failure:{ error in
                 logger.error(error!.localizedDescription)
