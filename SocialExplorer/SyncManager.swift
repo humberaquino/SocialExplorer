@@ -179,7 +179,7 @@ class SyncManager: NSObject {
                     // Check if location already exists
                     var error: NSError?
                     let locations = self.fecthCDLocationWithId(instagramLocation.id!,
-                        andType: CDLocationType.Instagram, error: &error)
+                        andType: SocialNetworkType.Instagram, error: &error)
                     if let error = error {
                         // Add error to inform
                         self.errorList.append(error)
@@ -223,7 +223,7 @@ class SyncManager: NSObject {
                     // Check if location already exists
                     var error: NSError?
                     let locations = self.fecthCDLocationWithId(foursquareLocation.id!,
-                        andType: CDLocationType.Foursquare ,error: &error)
+                        andType: SocialNetworkType.Foursquare ,error: &error)
                     if let error = error {
                         // Add error to inform
                         self.errorList.append(error)
@@ -289,7 +289,7 @@ class SyncManager: NSObject {
                 logger.debug("Entering location \(newLocation.locationType): \(newLocation)")
                 
                 // Handle the location depending on the type
-                if newLocation.locationType == CDLocationType.Instagram.rawValue {
+                if newLocation.locationType == SocialNetworkType.Instagram.rawValue {
                     // Instagram
                     self.handleInstagramMediaForLocation(newLocation, dispatchGroup: mediaDownloadGroup)
                 } else {
@@ -494,7 +494,7 @@ class SyncManager: NSObject {
         return self.privateContext.executeFetchRequest(request, error: &error) as? [CDLocation]
     }
     
-    func fecthCDLocationWithId(id: String, andType type: CDLocationType, inout error: NSError?) -> [CDLocation]? {
+    func fecthCDLocationWithId(id: String, andType type: SocialNetworkType, inout error: NSError?) -> [CDLocation]? {
         var request = NSFetchRequest(entityName: CDLocation.ModelName)
         
         let locationIdPredicate = NSPredicate(format: "%K = %@", CDLocation.Keys.Id, id)

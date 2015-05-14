@@ -599,7 +599,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
             
             
             var image: UIImage!
-            if location.locationType == CDLocationType.Instagram.rawValue {
+            if location.locationType == SocialNetworkType.Instagram.rawValue {
                 image = UIImage(named: "MiniInstagram")
             } else {
                 image = UIImage(named: "MiniFoursquare")

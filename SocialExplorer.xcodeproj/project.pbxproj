@@ -16,6 +16,7 @@
 		571539991B03FDC200EE390D /* FoursquareLocationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571539981B03FDC200EE390D /* FoursquareLocationDTO.swift */; };
 		5715399B1B04003400EE390D /* FoursquarePhotoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5715399A1B04003400EE390D /* FoursquarePhotoDTO.swift */; };
 		572E66621AF80F7600591A48 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572E66611AF80F7600591A48 /* UserSettings.swift */; };
+		5749D5DC1B052F8800827AD4 /* SocialNetworkType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5749D5DB1B052F8800827AD4 /* SocialNetworkType.swift */; };
 		5750D8F51AF82ADD00D93191 /* DiscoverMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D8F41AF82ADD00D93191 /* DiscoverMapViewController.swift */; };
 		5750D8F81AF93C7500D93191 /* CDReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5750D8F71AF93C7500D93191 /* CDReference.swift */; };
 		5750D8FB1AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5750D8F91AF93CA900D93191 /* SocialExplorerModel.xcdatamodeld */; };
@@ -65,6 +66,7 @@
 		571539981B03FDC200EE390D /* FoursquareLocationDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoursquareLocationDTO.swift; sourceTree = "<group>"; };
 		5715399A1B04003400EE390D /* FoursquarePhotoDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoursquarePhotoDTO.swift; sourceTree = "<group>"; };
 		572E66611AF80F7600591A48 /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		5749D5DB1B052F8800827AD4 /* SocialNetworkType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocialNetworkType.swift; sourceTree = "<group>"; };
 		5750D8F41AF82ADD00D93191 /* DiscoverMapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverMapViewController.swift; sourceTree = "<group>"; };
 		5750D8F71AF93C7500D93191 /* CDReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDReference.swift; sourceTree = "<group>"; };
 		5750D8FA1AF93CA900D93191 /* SocialExplorerModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SocialExplorerModel.xcdatamodel; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 				57D2C1EC1AFD7339006C3C61 /* CDLocation.swift */,
 				57D2C1AF1AFABB46006C3C61 /* CDMedia.swift */,
 				57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */,
+				5749D5DB1B052F8800827AD4 /* SocialNetworkType.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -549,6 +552,7 @@
 				571539991B03FDC200EE390D /* FoursquareLocationDTO.swift in Sources */,
 				57BD6FB11B03CD6C005765C4 /* FoursquareClient.swift in Sources */,
 				5701E7D31AF67A920021547D /* Config.swift in Sources */,
+				5749D5DC1B052F8800827AD4 /* SocialNetworkType.swift in Sources */,
 				5750D9021AF94B7300D93191 /* ReferenceViewController.swift in Sources */,
 				5701E7CF1AF678C30021547D /* ProjectExtensions.swift in Sources */,
 				5750D9041AF96D3500D93191 /* UIKitExtensions.swift in Sources */,

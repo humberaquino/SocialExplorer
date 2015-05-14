@@ -22,6 +22,8 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var searchOptionSegmentControl: UISegmentedControl!
+    
     var sharedContext: NSManagedObjectContext!
     
     var selectedReference: CDReference!
@@ -47,23 +49,7 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
         tapRecognizer = UITapGestureRecognizer(target: self, action: "handleTapOnMapGesture:")             
         
-        // TODO: Handle the error with a alertview
-        // Do the initial fetch
-        var error: NSError?
-        fetchedResultsController.performFetch(&error)
-        
-        if let error = error {
-            logger.error("Error performing initial fetch: \(error)")
-        }
-        
-        // Fetch media
-        error = nil
-        mediaFetchedResultsController.performFetch(&error)
-        if let error = error {
-            logger.error("Error performing initial fetch fot media: \(error)")
-        }
-        
-        tableView.reloadData()
+        updateFetchedResultsControllers()
 //        reloadAnnotationsToMapViewFromFetchedResults()
         
     }
@@ -99,6 +85,27 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         saveMapViewRegion()
     }
     
+    func updateFetchedResultsControllers() {
+        // TODO: Handle the error with a alertview
+        // Do the initial fetch
+        reloadLocationFetchedResultsController()
+        var error: NSError?
+        locationFetchedResultsController.performFetch(&error)
+        
+        if let error = error {
+            logger.error("Error performing initial fetch: \(error)")
+        }
+        
+        // Fetch media
+        reloadMediaFetchedResultsController()
+        error = nil
+        mediaFetchedResultsController.performFetch(&error)
+        if let error = error {
+            logger.error("Error performing initial fetch fot media: \(error)")
+        }
+        
+        tableView.reloadData()
+    }
     
     func handleTapOnMapGesture(recognizer: UIGestureRecognizer) {
         logger.debug("Tap on map")
@@ -240,7 +247,7 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
                 
         var image: UIImage!
         // FIXME
-        if location.locationType == CDLocationType.Instagram.rawValue {
+        if location.locationType == SocialNetworkType.Instagram.rawValue {
             image = UIImage(named: "MiniInstagram")
         } else {
             image = UIImage(named: "MiniFoursquare")
@@ -320,11 +327,19 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     func reloadAnnotationsToMapViewFromFetchedResults() {
         let annotations = mapView.annotations
         mapView.removeAnnotations(annotations)
-        mapView.addAnnotations(fetchedResultsController.fetchedObjects)
+        mapView.addAnnotations(locationFetchedResultsController.fetchedObjects)
         
 //        mapView.addAnnotation(selectedReference)
         
         mapView.zoomToFitCurrentCoordenables(false)
+    }
+    
+    @IBAction func segmentChanged(sender: UISegmentedControl) {
+        logger.debug("Segment: \(sender)")
+        
+        updateFetchedResultsControllers()
+        reloadAnnotationsToMapViewFromFetchedResults()
+    
     }
     
     @IBAction func optionsAction(sender: UIBarButtonItem) {
@@ -338,37 +353,80 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         
     }
     
-    lazy var mediaFetchedResultsController: NSFetchedResultsController = {
+    var mediaFetchedResultsController:NSFetchedResultsController!
+    func reloadMediaFetchedResultsController (){
         
         let fetchRequest = NSFetchRequest(entityName: CDMedia.ModelName)
-        fetchRequest.predicate = NSPredicate(format: "parentLocation.referenceList contains[c] %@", self.selectedReference)
+        
+        let referencePredicate = NSPredicate(format: "parentLocation.referenceList contains[c] %@", self.selectedReference)
+        
+        if let current = self.currentNetwork() {
+            let socialPredicate = NSPredicate(format: "%K = %@", CDMedia.PropertyKeys.Type, current.rawValue)
+            fetchRequest.predicate = NSCompoundPredicate(type: NSCompoundPredicateType.AndPredicateType, subpredicates: [socialPredicate, referencePredicate])
+        } else {
+            // Search all
+            fetchRequest.predicate = referencePredicate
+        }
+        
+        
         let sortDescriptor = NSSortDescriptor(key: "parentLocation.id", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
-        return fetchedResultsController
-    }()
+        mediaFetchedResultsController = fetchedResultsController
+    }
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
+    var locationFetchedResultsController: NSFetchedResultsController!
+    func reloadLocationFetchedResultsController() {
         
         let fetchRequest = NSFetchRequest(entityName: CDLocation.ModelName)
         
         let referenceListPredicate = NSPredicate(format: "%K contains[c] %@", CDLocation.Keys.ReferenceList, self.selectedReference)
+        
         let mediaListNonEmptyPredicate = NSPredicate(format: "mediaList.@count > 0")
         
-        fetchRequest.predicate = NSCompoundPredicate(type: NSCompoundPredicateType.AndPredicateType, subpredicates: [referenceListPredicate, mediaListNonEmptyPredicate])
+        
+        var predicates:[NSPredicate] = [referenceListPredicate, mediaListNonEmptyPredicate]
+        
+        if let current = self.currentNetwork() {
+            let socialPredicate = NSPredicate(format: "%K = %@", CDLocation.Keys.LocationType, current.rawValue)
+            predicates.append(socialPredicate)
+        }
+        
+        fetchRequest.predicate = NSCompoundPredicate(type: NSCompoundPredicateType.AndPredicateType, subpredicates: predicates)
         
         
         fetchRequest.sortDescriptors = []
         
-        
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
-        return fetchedResultsController
-    }()
+        locationFetchedResultsController = fetchedResultsController
+    }
+    
+
+    // FIXME
+//    func searchAllNetworks() -> Bool {
+//        if let current = currentNetwork () {
+//            return false
+//        } else {
+//            return true
+//        }
+//    }
+    
+    
+    func currentNetwork() -> SocialNetworkType? {
+        switch self.searchOptionSegmentControl.selectedSegmentIndex {
+        case 1:
+            return SocialNetworkType.Instagram
+        case 2:
+            return SocialNetworkType.Foursquare
+        default:
+            return nil
+        }
+    }
     
     func saveMapViewRegion() {
         logger.debug("Saving new location span")

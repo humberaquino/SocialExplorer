@@ -57,7 +57,7 @@ class FoursquareLocationDTO: Mappable {
             CDLocation.Keys.Latitude: self.latitude!,
             CDLocation.Keys.Longitude: self.longitude!,
             CDLocation.Keys.Name: self.name!,
-            CDLocation.Keys.LocationType: CDLocationType.Foursquare.rawValue
+            CDLocation.Keys.LocationType: SocialNetworkType.Foursquare.rawValue
         ]
         return dict
     }

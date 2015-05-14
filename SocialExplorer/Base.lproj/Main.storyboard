@@ -224,6 +224,9 @@
                                     <segment title="Instagram"/>
                                     <segment title="Foursquare"/>
                                 </segments>
+                                <connections>
+                                    <action selector="segmentChanged:" destination="seU-ss-GRS" eventType="valueChanged" id="Wnj-y2-NvI"/>
+                                </connections>
                             </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -252,6 +255,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="mapView" destination="1NU-ip-iKZ" id="LJZ-zP-tF1"/>
+                        <outlet property="searchOptionSegmentControl" destination="x6N-Q4-8m7" id="A6l-uM-LY7"/>
                         <outlet property="tableView" destination="Cy0-9n-LH1" id="UPb-1P-tK5"/>
                         <segue destination="Pfh-kn-u4k" kind="show" identifier="MediaDetailSegue" id="dvo-8R-7gP"/>
                     </connections>

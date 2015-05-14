@@ -12,11 +12,6 @@ import SwiftyJSON
 import CoreLocation
 
 
-enum CDMediaTypes: String {
-    case Instagram = "instagram"
-    case Foursquare = "foursquare"
-}
-
 enum CDMediaState: String {
     case New = "new"
     case Favorited = "favorited"
@@ -31,6 +26,7 @@ class CDMedia: NSManagedObject {
     struct PropertyKeys {
         static let ParentLocation = "parentLocation"
         static let State = "state"
+        static let Type = "type"
     }
     
     @NSManaged var id: String
@@ -53,7 +49,7 @@ class CDMedia: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         id = dto.id!
-        type = CDMediaTypes.Instagram.rawValue
+        type = SocialNetworkType.Instagram.rawValue
         caption = dto.caption
         tags = joinTags(dto.tags)
         thumbnailURL = dto.thumbnail!
@@ -67,7 +63,7 @@ class CDMedia: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         id = dto.id!
-        type = CDMediaTypes.Foursquare.rawValue
+        type = SocialNetworkType.Foursquare.rawValue
         caption = dto.caption
         imageURL = dto.imagePath()!
         thumbnailURL = dto.thumbnailImagePath()!
@@ -89,7 +85,7 @@ class CDMedia: NSManagedObject {
         if let tags = self.tagsAsCommaSeparatedString() {
             return tags
         } else {
-            if type == CDMediaTypes.Foursquare.rawValue {
+            if type == SocialNetworkType.Foursquare.rawValue {
                 return ""
             } else {
                 return "No tags"

@@ -152,7 +152,7 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
         
         var image: UIImage!
         // FIXME
-        if mediaSelected.parentLocation.locationType == CDLocationType.Instagram.rawValue {
+        if mediaSelected.parentLocation.locationType == SocialNetworkType.Instagram.rawValue {
             image = UIImage(named: "MiniInstagram")
         } else {
             image = UIImage(named: "MiniFoursquare")

@@ -17,16 +17,11 @@ enum CDLocationState: String {
     case Failed = "failed"
 }
 
-enum CDLocationType: String {
-    case Instagram = "instagram"
-    case Foursquare = "foursquare"
-}
-
 @objc(CDLocation)
 
 class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
     
-    static let ModelName = "Location"
+    static let ModelName = "Location"       
     
     struct Keys {
         static let Longitude = "longitude"
@@ -68,7 +63,6 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
         name = dictionary[Keys.Name] as! String
         latitude = dictionary[Keys.Latitude] as! Double
         longitude = dictionary[Keys.Longitude] as! Double
-        
         locationType = dictionary[Keys.LocationType] as! String
         
         state = CDLocationState.New.rawValue
@@ -84,7 +78,7 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
     }
     
     func isInstagramLocation() -> Bool {
-        if locationType == CDLocationType.Instagram.rawValue {
+        if locationType == SocialNetworkType.Instagram.rawValue {
             return true
         }
         return false
