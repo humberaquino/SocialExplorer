@@ -45,7 +45,9 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
         
         
         // FIXME
-        self.setupMediaLiked()
+        if mediaSelected.parentLocation.isInstagramLocation() {
+            self.setupMediaLiked()
+        }
         
         
         let url = NSURL(string: mediaSelected.imageURL)!

@@ -82,6 +82,13 @@ class CDLocation: NSManagedObject, MKAnnotation, Coordenable {
     func addMedia(media: CDMedia) {
         mediaList = mediaList.cloneAndAddObject(media)
     }
+    
+    func isInstagramLocation() -> Bool {
+        if locationType == CDLocationType.Instagram.rawValue {
+            return true
+        }
+        return false
+    }
         
     override var description: String {
         return "[\(id)]: \(name)"
