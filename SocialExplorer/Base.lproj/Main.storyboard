@@ -17,26 +17,75 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Social Explorer" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pxw-jG-PL1">
-                                <rect key="frame" x="242" y="158" width="116" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="firstbg" translatesAutoresizingMaskIntoConstraints="NO" id="IwV-rK-Apk">
+                                <rect key="frame" x="0.0" y="-7" width="600" height="607"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Instagram" translatesAutoresizingMaskIntoConstraints="NO" id="SNY-g0-yYW">
+                                <rect key="frame" x="495" y="540" width="40" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="edN-wM-EsT"/>
+                                    <constraint firstAttribute="width" constant="40" id="uaA-fE-7is"/>
+                                </constraints>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Foursquare" translatesAutoresizingMaskIntoConstraints="NO" id="Iaq-cr-Ewg">
+                                <rect key="frame" x="540" y="540" width="40" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="40" id="i5R-JA-FJB"/>
+                                    <constraint firstAttribute="height" constant="40" id="qA1-nf-cuZ"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Supports" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hWE-iU-cKx">
+                                <rect key="frame" x="495" y="517" width="90" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="GAQ-xp-5eJ"/>
+                                    <constraint firstAttribute="width" constant="90" id="y39-1D-95f"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <color key="textColor" red="1" green="1" blue="0.40000000596046448" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mdi-iy-8Sw">
-                                <rect key="frame" x="250" y="350" width="101" height="30"/>
-                                <state key="normal" title="Start exploring"/>
+                            <button opaque="NO" alpha="0.89999999999999991" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mdi-iy-8Sw">
+                                <rect key="frame" x="100" y="450" width="400" height="55"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="55" id="Rug-bZ-7SD"/>
+                                    <constraint firstAttribute="width" constant="400" id="oVf-kj-1kJ"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="25"/>
+                                <state key="normal" title="Start exploring">
+                                    <color key="titleColor" red="1" green="0.80000001192092896" blue="0.40000000596046448" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
                                 <connections>
                                     <segue destination="coo-7s-wMl" kind="presentation" modalTransitionStyle="flipHorizontal" id="X5l-6H-3S1"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.89999999999999991" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Social Explorer" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pxw-jG-PL1">
+                                <rect key="frame" x="55" y="150" width="490" height="150"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="150" id="NvX-gy-V7o"/>
+                                    <constraint firstAttribute="width" constant="490" id="V4Z-VS-RTh"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Zapfino" family="Zapfino" pointSize="35"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="Mdi-iy-8Sw" firstAttribute="top" secondItem="pxw-jG-PL1" secondAttribute="bottom" constant="150" id="18w-iT-vTF"/>
                             <constraint firstAttribute="centerX" secondItem="Mdi-iy-8Sw" secondAttribute="centerX" id="F7u-mz-9UA"/>
+                            <constraint firstItem="hWE-iU-cKx" firstAttribute="leading" secondItem="IwV-rK-Apk" secondAttribute="trailing" constant="-105" id="HeP-ul-irR"/>
+                            <constraint firstAttribute="centerX" secondItem="IwV-rK-Apk" secondAttribute="centerX" id="LCt-vW-Lhb"/>
+                            <constraint firstItem="Iaq-cr-Ewg" firstAttribute="top" secondItem="IwV-rK-Apk" secondAttribute="bottom" constant="-60" id="R1d-eA-QH9"/>
+                            <constraint firstItem="Iaq-cr-Ewg" firstAttribute="top" secondItem="hWE-iU-cKx" secondAttribute="bottom" constant="3" id="S3F-Hp-1iy"/>
                             <constraint firstAttribute="centerX" secondItem="pxw-jG-PL1" secondAttribute="centerX" id="TZp-lh-0FC"/>
-                            <constraint firstItem="pxw-jG-PL1" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="138" id="qYL-mg-KvT"/>
-                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Mdi-iy-8Sw" secondAttribute="bottom" constant="220" id="ujm-Nb-8oo"/>
+                            <constraint firstItem="IwV-rK-Apk" firstAttribute="height" secondItem="kh9-bI-dsS" secondAttribute="height" constant="7" id="agF-Zn-3Gi"/>
+                            <constraint firstItem="Iaq-cr-Ewg" firstAttribute="centerY" secondItem="SNY-g0-yYW" secondAttribute="centerY" id="hdn-sb-sRJ"/>
+                            <constraint firstAttribute="centerY" secondItem="IwV-rK-Apk" secondAttribute="centerY" constant="3.5" id="iFT-3h-akb"/>
+                            <constraint firstItem="pxw-jG-PL1" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="130" id="qYL-mg-KvT"/>
+                            <constraint firstItem="IwV-rK-Apk" firstAttribute="width" secondItem="kh9-bI-dsS" secondAttribute="width" id="saL-OX-31C"/>
+                            <constraint firstItem="Iaq-cr-Ewg" firstAttribute="leading" secondItem="IwV-rK-Apk" secondAttribute="trailing" constant="-60" id="tlM-k2-t0j"/>
+                            <constraint firstItem="Iaq-cr-Ewg" firstAttribute="leading" secondItem="SNY-g0-yYW" secondAttribute="trailing" constant="5" id="uOu-vI-FEA"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -792,6 +841,7 @@
         <image name="Settings" width="30" height="30"/>
         <image name="allpins" width="30" height="30"/>
         <image name="allreferences" width="30" height="30"/>
+        <image name="firstbg" width="500" height="667"/>
         <image name="gear" width="30" height="30"/>
         <image name="heart" width="30" height="30"/>
         <image name="locateme" width="30" height="30"/>
