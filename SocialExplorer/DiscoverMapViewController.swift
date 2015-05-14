@@ -23,6 +23,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     let userSettings = UserSettings.sharedInstance()
     
+    @IBOutlet weak var refreshButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
     
     var sharedContext: NSManagedObjectContext!
@@ -66,14 +67,12 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         
         self.registerObservers()
         
+        self.configureRefreshButton()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         mapView.addGestureRecognizer(longTapRecognizer)
-        
-        
-        
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -84,22 +83,32 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     
     func registerObservers() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncComplete:", name: SyncManager.SyncComplete, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncError:", name: SyncManager.SyncError, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncComplete:", name: SyncManagerEvent.SyncComplete.rawValue, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncError:", name: SyncManagerEvent.SyncError.rawValue, object: nil)
+         NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncStarted:", name: SyncManagerEvent.SyncStarted.rawValue, object: nil)
     }
     
     func unregisterObservers() {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManager.SyncComplete, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManager.SyncError, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManagerEvent.SyncComplete.rawValue, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManagerEvent.SyncError.rawValue, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: SyncManagerEvent.SyncStarted.rawValue, object: nil)
     }
     
     func handleSyncComplete(notification: NSNotification) {
         logger.debug("Handling sync complete")
         reloadSelectedReferenceLocationsFromMap()
+        self.configureRefreshButton()
     }
     
     func handleSyncError(notification: NSNotification) {
         logger.debug("Handling sync error")
+        self.configureRefreshButton()
+    }
+    
+    func handleSyncStarted(notification: NSNotification) {
+        logger.debug("Handling sync started")
+        
+        self.refreshButtonToActivityView()
     }
     
     
@@ -107,9 +116,32 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         unregisterObservers()
     }
     
+    func refreshButtonToActivityView() {
+//        let activityView = UIActivityIndicatorView(frame: )
+        let activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
+        activityView.frame = CGRect(x: 0, y: 0, width: 25, height: 25)
+        activityView.hidesWhenStopped = true
+//        activityView.sizeToFit()
+        activityView.startAnimating()
+//        activityView.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin | UIViewAutoresizing.FlexibleRightMargin | UIViewAutoresizing.FlexibleTopMargin | UIViewAutoresizing.FlexibleBottomMargin
+        let loadingView = UIBarButtonItem(customView: activityView)
+        self.navigationItem.rightBarButtonItem = loadingView
+    }
+    
+    func configureRefreshButton() {
+        let refreshButton = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "forceSyncAction:")
+        self.navigationItem.rightBarButtonItem = refreshButton
+    }
+    
     
     @IBAction func forceSyncAction(sender: UIBarButtonItem) {
-        SyncManager.sharedInstance().sync()        
+        sender.enabled = false
+        SyncManager.sharedInstance().sync {
+            started in
+            if !started {
+                sender.enabled = true
+            }
+        }
     }
     
     @IBAction func zoomToShowAllLocationsAction(sender: UIButton) {

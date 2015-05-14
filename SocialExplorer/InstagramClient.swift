@@ -27,7 +27,7 @@ class InstagramClient: BaseSocialClient {
         
     // MARK: - Base requests
     
-    // https://api.instagram.com/v1/locations/search?lat=48.858844&lng=2.294351&access_token=ACCESS-TOKEN
+    // https://instagram.com/developer/endpoints/locations/
     func requestLocations(coordiante: CLLocationCoordinate2D, completion: (instagramLocationDTOList: [InstagramLocationDTO]!, error: NSError!) -> Void) {
         
         self.execWithToken { (token, error) -> Void in
@@ -39,7 +39,8 @@ class InstagramClient: BaseSocialClient {
             let parameters: [String: AnyObject] = [
                 ParameterKeys.Latitude: coordiante.latitude,
                 ParameterKeys.Longitude: coordiante.longitude,
-                ParameterKeys.AccessToken: token
+                ParameterKeys.AccessToken: token,
+                ParameterKeys.Accuracy: Config.Instagram.Accuracy
             ]
             
 
@@ -86,7 +87,7 @@ class InstagramClient: BaseSocialClient {
         
     }
     
-    // https://api.instagram.com/v1/locations/{location-id}/media/recent?access_token=ACCESS-TOKEN
+
     func requestMediaRecentForLocationId(locationId: String, completion: (instagramMediaDTOList: [InstagramMediaRecentDTO]!, error: NSError!) -> Void) {
         
         self.execWithToken { (token, error) -> Void in
@@ -245,6 +246,7 @@ extension InstagramClient {
         static let Latitude = "lat"
         static let Longitude = "lng"
         static let AccessToken = "access_token"
+        static let Accuracy = "distance"
     }
     
     struct ResponseKeys {

@@ -16,6 +16,7 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
     
     let MediaReusableAnnotationId = "MediaReusableAnnotation"
     
+    @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
@@ -42,7 +43,14 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
         titleLabel.text = mediaSelected.title
         descriptionLabel.text = mediaSelected.tagsAsCommaSeparatedString()
         
-        
+        if let date = mediaSelected.creationDate {
+            let formatter = NSDateFormatter()
+            formatter.dateFormat = "MM-dd-yyyy HH:mm"
+            var dateString = formatter.stringFromDate(date)
+            dateLabel.text = dateString
+        } else {
+            dateLabel.hidden = true
+        }
         
         // FIXME
         if mediaSelected.parentLocation.isInstagramLocation() {
@@ -101,9 +109,6 @@ class MediaViewController: UIViewController, MKMapViewDelegate {
     }
     
     func setupMediaLiked() {
-        
-        
-        
         instagramClient.isMediaLiked(mediaSelected.id) { (isLiked, error) in
             if let error = error {
                 self.showMessageWithTitle("Could not get the media info", message: error.localizedDescription)

@@ -11,6 +11,12 @@ import CoreData
 import SwiftyJSON
 import CoreLocation
 
+
+enum CDMediaTypes: String {
+    case Instagram = "instagram"
+    case Foursquare = "foursquare"
+}
+
 enum CDMediaState: String {
     case New = "new"
     case Favorited = "favorited"
@@ -21,34 +27,7 @@ enum CDMediaState: String {
 class CDMedia: NSManagedObject {
     
     static let ModelName = "Media"
-    
-    struct Defaults {
-        static let State = "new"
-    }
-    
-    // JSON Keys
-    struct Keys {
-        static let Id = "id"
-        static let TypeName = "type"
-        static let Likes = "likes"
-        static let Likes_Count = "count"
-        static let Link = "link"
-        static let Tags = "tags"
-        
-        static let User = "user"
-        static let User_Username = "username"
-        static let User_ProfilePicture = "profile_picture"
-        
-        static let Images = "images"
-        static let Images_StandardResolution = "standard_resolution"
-        static let Images_Thumbnail = "thumbnail"
-        static let Images_url = "url"
-    }
-    
-    struct Types {
-        static let Instagram = ""
-    }
-    
+
     struct PropertyKeys {
         static let ParentLocation = "parentLocation"
         static let State = "state"
@@ -56,13 +35,12 @@ class CDMedia: NSManagedObject {
     
     @NSManaged var id: String
     @NSManaged var thumbnailURL: String
-//    @NSManaged var userId: NSNumber
-//    @NSManaged var instagramURL: String
-//    @NSManaged var likesCount: Int
+    @NSManaged var caption: String?
     @NSManaged var tags: String?
     @NSManaged var type: String
     @NSManaged var imageURL: String
     @NSManaged var state: String
+    @NSManaged var creationDate: NSDate?
     
     @NSManaged var parentLocation: CDLocation
 
@@ -70,40 +48,18 @@ class CDMedia: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
-//    // TODO: Change for DTO constructor?
-//    init(json: JSON, context: NSManagedObjectContext) {
-//        let entity = NSEntityDescription.entityForName(CDMedia.ModelName, inManagedObjectContext: context)!
-//        super.init(entity: entity, insertIntoManagedObjectContext: context)
-//        
-//        id = json[Keys.Id].stringValue
-//        
-//        type = json[Keys.TypeName].stringValue
-//                
-//        instagramURL = json[Keys.Link].stringValue
-////        likesCount = json[Keys.Likes][Keys.Likes_Count].intValue
-//        let tagsArray = json[Keys.Tags].arrayObject as! [String]
-//        tags = ",".join(tagsArray)
-//        
-////        userId = json[Keys.User][Keys.Id].intValue
-//        
-//        thumbnailURL = json[Keys.Images][Keys.Images_Thumbnail].stringValue
-//        imageURL = json[Keys.Images][Keys.Images_StandardResolution].stringValue
-//        
-//        state = CDMediaState.New.rawValue
-//    }
-    
     init(dto: InstagramMediaRecentDTO, context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName(CDMedia.ModelName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         id = dto.id!
-        // FIXME
-        type = "instagram"
+        type = CDMediaTypes.Instagram.rawValue
+        caption = dto.caption
         tags = joinTags(dto.tags)
         thumbnailURL = dto.thumbnail!
         imageURL = dto.image!
-        
         state = CDMediaState.New.rawValue
+        creationDate = dto.createdTime
     }
     
     init(dto: FoursquarePhotoDTO, context: NSManagedObjectContext) {
@@ -111,31 +67,40 @@ class CDMedia: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         id = dto.id!
-        // FIXME
-        type = "foursquare"
-       
+        type = CDMediaTypes.Foursquare.rawValue
+        caption = dto.caption
         imageURL = dto.imagePath()!
         thumbnailURL = dto.thumbnailImagePath()!
-        
         state = CDMediaState.New.rawValue
+        creationDate = dto.createdTime
     }
     
     
     var title: String {
-        // TODO: Use better info
-        return "\(type) image"
+        if let caption = caption {
+            return caption
+        } else {
+            return "\(type) photo"
+        }
     }
     
     
-    // FIXME
     var detail: String {
         if let tags = self.tagsAsCommaSeparatedString() {
             return tags
         } else {
-            return "No tags"
+            if type == CDMediaTypes.Foursquare.rawValue {
+                return ""
+            } else {
+                return "No tags"
+            }
         }
-        
     }
+    
+    var coordinate: CLLocationCoordinate2D {
+        return parentLocation.coordinate
+    }
+    
     
     func toogleFavorited() {
         if isFavorited() {
@@ -145,7 +110,6 @@ class CDMedia: NSManagedObject {
         }
     }
     
-    
     func isFavorited() -> Bool {
         if state == CDMediaState.Favorited.rawValue {
             return true
@@ -154,6 +118,7 @@ class CDMedia: NSManagedObject {
         }
     }
     
+    // MARK:  Utils
     
     func tagsAsCommaSeparatedString() -> String? {
         if let tagsList = self.tagsAsArray() {
@@ -194,8 +159,5 @@ class CDMedia: NSManagedObject {
         let string  = json.rawString()
         return string
     }
-    
-    var coordinate: CLLocationCoordinate2D {
-        return parentLocation.coordinate
-    }
+   
 }

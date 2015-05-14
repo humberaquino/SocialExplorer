@@ -212,8 +212,8 @@
 		577D70BE1B015690009CF1D1 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				57BD6FAA1B03A6D9005765C4 /* Favorite */,
 				570822881AF7FF8A007B09C3 /* Start */,
+				57BD6FAA1B03A6D9005765C4 /* Favorite */,
 				5750D8F61AF92E8200D93191 /* Discovery map */,
 				57DC7EBD1B00EAEF004C6FF6 /* Reference */,
 			);

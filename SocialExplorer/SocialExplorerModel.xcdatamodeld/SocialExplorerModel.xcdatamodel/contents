@@ -12,6 +12,8 @@
         <relationship name="referenceList" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Reference" inverseName="locationList" inverseEntity="Reference" syncable="YES"/>
     </entity>
     <entity name="Media" representedClassName="CDMedia" syncable="YES">
+        <attribute name="caption" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="imageURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
@@ -33,7 +35,7 @@
     </entity>
     <elements>
         <element name="Location" positionX="-45" positionY="108" width="128" height="180"/>
-        <element name="Media" positionX="-63" positionY="27" width="128" height="150"/>
+        <element name="Media" positionX="-63" positionY="27" width="128" height="180"/>
         <element name="Reference" positionX="-63" positionY="-18" width="128" height="180"/>
     </elements>
 </model>

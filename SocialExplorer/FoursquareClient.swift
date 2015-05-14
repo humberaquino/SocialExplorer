@@ -30,7 +30,8 @@ class FoursquareClient: BaseSocialClient {
             ParameterKeys.ClientId: Config.Foursquare.ClientId,
             ParameterKeys.ClientSecret: Config.Foursquare.ClientSecret,
             ParameterKeys.VersionAPI: Config.Foursquare.VersionAPI,
-            ParameterKeys.Limit: Config.Foursquare.SearchVenueLimit
+            ParameterKeys.Limit: Config.Foursquare.SearchVenueLimit,
+            ParameterKeys.Accuracy: Config.Foursquare.Accuracy
         ]
         
         
@@ -142,6 +143,7 @@ extension FoursquareClient {
         static let ClientId = "client_id"
         static let ClientSecret = "client_secret"
         static let Limit = "limit"
+        static let Accuracy = "llAcc"
     }
     
     struct ResponseKeys {

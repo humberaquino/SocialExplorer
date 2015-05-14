@@ -21,6 +21,7 @@ struct Config {
         static let VersionAPI = "20140701"
         static let SearchVenueLimit = 10
         static let SearchVenuePhotoLimit = 10
+        static let Accuracy = 1000
     }
     
     // Instagram constants
@@ -28,6 +29,7 @@ struct Config {
         static let ClientId = "939662edefdf44b4ad227ba1b5e24b21"
         static let ClientSecret = "9fc9111fd65945afb555f2c2ab089e81"
         static let RedirectURI = "SocialExplorer://"
+        static let Accuracy = 1000
     }
         
     // Logger configuration

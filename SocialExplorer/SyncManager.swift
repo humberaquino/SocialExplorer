@@ -10,6 +10,14 @@ import Foundation
 import XCGLogger
 import CoreData
 
+
+enum SyncManagerEvent: String {
+    case SyncError = "SyncError"
+    case SyncComplete = "SyncComplete"
+    case SyncStarted = "SyncStarted"
+}
+
+
 // Handles syncronizartion request and notifications
 // This should be the starting point of syncronization
 
@@ -17,9 +25,6 @@ import CoreData
 // All Core data access are via a private context that has the main context as its parent
 // The execution runs on its own queue
 class SyncManager: NSObject {
-    
-    static let SyncError = "SyncError"
-    static let SyncComplete = "SyncComplete"
     
     let userSettings = UserSettings.sharedInstance()
     
@@ -38,16 +43,33 @@ class SyncManager: NSObject {
     // The private context for the manager
     var privateContext: NSManagedObjectContext!
     
+    
     // Starts the sync process if is not already running
     // It is safe to call this method at any time
-    func sync() {
+    func sync(startInfoBlock:((started: Bool) -> Void)? = nil) {
         // 1. Release the calling queue ASAP
         dispatch_async(SyncQueue) {
             // 2. Check if the manager is running. Mark as running if not to be able to continue
             if !self.startSyncIfPossible() {
                 logger.debug("Sync running. Skipping")
+                if let startInfoBlock = startInfoBlock {
+                    self.performOnMainQueue {
+                        startInfoBlock(started: false)
+                    }
+                }
                 return
             }
+            
+            logger.debug("Sync started")
+            // Inform the caller
+            if let startInfoBlock = startInfoBlock {
+                self.performOnMainQueue {
+                    startInfoBlock(started: false)
+                }
+            }
+            
+            // Notify it
+            self.notifySyncStarted()
             
             // Check if at least one service is available
             if self.userSettings.noServiceAvailable() {
@@ -55,8 +77,6 @@ class SyncManager: NSObject {
                 self.markSyncAsDone()
                 return
             }
-            
-            logger.debug("Sync started")
             
             // 3. Setup global sync error list
             self.errorList = SynchronizedArray<NSError>()
@@ -85,23 +105,22 @@ class SyncManager: NSObject {
             
             // 2. Check if there are new references to process
             if referenceCount == 0 {
-                logger.debug("No references to update. Check for new locations")
-                // TODO
-                self.saveAndComplete()
-                return
+                logger.debug("No references to update.")
+                // Continue with locations
+                self.syncNewLocations()
+            } else {
+                logger.debug("\(referenceCount) references to update")
+                
+                // 3. For each new reference, fetch its locations
+                let newReferenceLocationGroup = dispatch_group_create()
+                for reference in newOrFailedReferences! {
+                    logger.debug("Updating '\(reference.name)' with state '\(reference.state)'")
+                    self.requestReferenceLocation(reference, dispatchGroup: newReferenceLocationGroup)
+                }
+                
+                // 4. All new references now have locations
+                self.saveAndStartSyncLocations(newReferenceLocationGroup)
             }
-            
-            logger.debug("\(referenceCount) references to update")
-            
-            // 3. For each new reference, fetch its locations
-            let newReferenceLocationGroup = dispatch_group_create()
-            for reference in newOrFailedReferences! {
-                logger.debug("Updating '\(reference.name)' with state '\(reference.state)'")
-                self.requestReferenceLocation(reference, dispatchGroup: newReferenceLocationGroup)
-            }
-            
-            // 4. All new references now have locations
-           self.saveAndStartSyncLocations(newReferenceLocationGroup)
         }
     }
     
@@ -270,7 +289,6 @@ class SyncManager: NSObject {
                 logger.debug("Entering location \(newLocation.locationType): \(newLocation)")
                 
                 // Handle the location depending on the type
-                
                 if newLocation.locationType == CDLocationType.Instagram.rawValue {
                     // Instagram
                     self.handleInstagramMediaForLocation(newLocation, dispatchGroup: mediaDownloadGroup)
@@ -406,13 +424,31 @@ class SyncManager: NSObject {
             CoreDataStackManager.sharedInstance().saveContext() { hadChanges in
                 logger.info("Sync done")
                 if self.errorList.count > 0 {
-                     NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.SyncError, object: self.errorList)
+                     self.notifySyncErrors()
                 } else {
                    
-                    NSNotificationCenter.defaultCenter().postNotificationName(SyncManager.SyncComplete, object: nil)
+                    self.notifySyncDone()
                 }
                  self.markSyncAsDone()
             }
+        }
+    }
+    
+    func notifySyncStarted() {
+        self.performOnMainQueue {
+            NSNotificationCenter.defaultCenter().postNotificationName(SyncManagerEvent.SyncStarted.rawValue, object: nil)
+        }
+    }
+    
+    func notifySyncDone() {
+        self.performOnMainQueue {
+            NSNotificationCenter.defaultCenter().postNotificationName(SyncManagerEvent.SyncComplete.rawValue, object: nil)
+        }
+    }
+    
+    func notifySyncErrors() {
+        self.performOnMainQueue {
+            NSNotificationCenter.defaultCenter().postNotificationName(SyncManagerEvent.SyncError.rawValue, object: self.errorList)
         }
     }
     
