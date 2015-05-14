@@ -17,6 +17,8 @@ enum CDMediaState: String {
     case Favorited = "favorited"
 }
 
+
+// Is a photo in a particular location
 @objc(CDMedia)
 
 class CDMedia: NSManagedObject {

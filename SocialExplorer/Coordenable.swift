@@ -9,6 +9,7 @@
 import Foundation
 import CoreLocation
 
+// Protocol used to draw References and Points 
 protocol Coordenable {
     var coordinate:CLLocationCoordinate2D { get }
 }

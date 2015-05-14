@@ -8,7 +8,7 @@
 
 import Foundation
 
-
+// The supported social networks
 enum SocialNetworkType: String {
     case Instagram = "instagram"
     case Foursquare = "foursquare"

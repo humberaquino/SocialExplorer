@@ -86,7 +86,6 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     }
     
     func updateFetchedResultsControllers() {
-        // TODO: Handle the error with a alertview
         // Do the initial fetch
         reloadLocationFetchedResultsController()
         var error: NSError?
@@ -111,21 +110,12 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         logger.debug("Tap on map")
     }
     
-    // MARK: - MKMapViewDelegate
-    
-//    func mapView(mapView: MKMapView!, regionDidChangeAnimated animated: Bool) {
-//        saveMapViewRegion(mapView)
-//    }
-//    
-    
     // MARK: - NSFetchedResultsControllerDelegate
     
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
-        
         if anObject is CDMedia {
-            // TODO: Refactor
             switch type {
             case .Insert:
                 self.tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
@@ -221,7 +211,6 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
                 }
             }
         }
-        // FIXME
         annotationProgrammaticallySelected = false
     }
     
@@ -248,9 +237,9 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         var image: UIImage!
         // FIXME
         if location.locationType == SocialNetworkType.Instagram.rawValue {
-            image = UIImage(named: "MiniInstagram")
+            image = UIImage(named: ImageName.MiniInstagram)
         } else {
-            image = UIImage(named: "MiniFoursquare")
+            image = UIImage(named: ImageName.MiniFoursquare)
         }
         
         annotationView.image = image
@@ -406,17 +395,6 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
         locationFetchedResultsController = fetchedResultsController
     }
     
-
-    // FIXME
-//    func searchAllNetworks() -> Bool {
-//        if let current = currentNetwork () {
-//            return false
-//        } else {
-//            return true
-//        }
-//    }
-    
-    
     func currentNetwork() -> SocialNetworkType? {
         switch self.searchOptionSegmentControl.selectedSegmentIndex {
         case 1:
@@ -435,50 +413,4 @@ class ReferenceViewController: UIViewController, MKMapViewDelegate, NSFetchedRes
     }
 }
 
-
-// TODO: Move this extension
-// Ref: http://stackoverflow.com/a/7200744/223228
-extension MKMapView {
-    
-    func zoomToFitCurrentCoordenables(animated: Bool) {
-        let locations = self.annotations as NSArray
-        zoomToFitCoordenables(locations, animated: animated)
-    }
-    
-    
-    func zoomToFitCoordenables(coordenables: NSArray, animated: Bool) {
-        if coordenables.count == 0 {
-            return
-        }
-        
-        var topLeftCoord = CLLocationCoordinate2D(latitude: -90, longitude: 180)
-        var bottomRightCoord = CLLocationCoordinate2D(latitude: 90, longitude: -180)
-        
-//        let locations = self.annotations as NSArray
-        
-        for element in coordenables {
-            let location = element as! Coordenable
-            topLeftCoord.longitude = fmin(topLeftCoord.longitude, location.coordinate.longitude)
-            topLeftCoord.latitude = fmax(topLeftCoord.latitude, location.coordinate.latitude)
-            bottomRightCoord.longitude = fmax(bottomRightCoord.longitude, location.coordinate.longitude)
-            bottomRightCoord.latitude = fmin(bottomRightCoord.latitude, location.coordinate.latitude)
-        }
-        
-        let latitude = topLeftCoord.latitude - (topLeftCoord.latitude - bottomRightCoord.latitude) * 0.5
-        let longitude = topLeftCoord.longitude + (bottomRightCoord.longitude - topLeftCoord.longitude) * 0.5
-        
-        let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        
-        // Add extra padding
-        let longitudeDelta = fabs(bottomRightCoord.longitude - topLeftCoord.longitude) * 1.1
-        let latitudeDelta = fabs(topLeftCoord.latitude - bottomRightCoord.latitude) * 1.6
-        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
-        
-        var region = MKCoordinateRegion(center: center, span: span)
-        
-        region = self.regionThatFits(region)
-        
-        self.setRegion(region, animated:animated)
-    }
-}
 

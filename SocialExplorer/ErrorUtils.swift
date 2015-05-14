@@ -19,7 +19,13 @@ struct ErrorUtils {
     
     static func errorForInstagramDisabled() -> NSError {
         return errorWithMessage("Instagram disabled", domain:.Service, code:.InstagramServiceDisabled)
-    }    
+    }
+    
+    static func errorForInstagramWithoutToken() -> NSError {
+        return errorWithMessage("Instagram does not have a token", domain:.Service, code:.InstagramDoesNotHaveToken)
+    }
+    
+    
 
     // MARK: Geocoder
     
@@ -59,4 +65,5 @@ enum ErrorCode: Int {
     
     case InstagramServiceDisabled = 300
     case InstagramOAuthException = 301
+    case InstagramDoesNotHaveToken = 302
 }

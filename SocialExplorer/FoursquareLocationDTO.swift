@@ -24,9 +24,6 @@ class FoursquareLocationDTO: Mappable {
     var longitude: Double?
     var name: String?
     
-//    var mediaList: [InstagramMediaRecentDTO] = []
-    
-    
     required init?(_ map: Map) {
         mapping(map)
     }
@@ -39,17 +36,6 @@ class FoursquareLocationDTO: Mappable {
         longitude <- map[Keys.Longitude]
         name <- map[Keys.Name]
     }
-    
-//    func addMedia(media: InstagramMediaRecentDTO) {
-//        media.parent = self
-//        mediaList.append(media)
-//    }
-//    
-//    func addMedias(mediaList: [InstagramMediaRecentDTO]) {
-//        for media in mediaList {
-//            addMedia(media)
-//        }
-//    }
     
     func asDict() -> [String: AnyObject] {
         let dict: [String: AnyObject] = [

@@ -17,15 +17,10 @@ let logger = XCGLogger.defaultInstance()
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-
         self.setupLogging()
-       
-        
         logger.info("Application started")
-        
         return true
     }
 
@@ -64,6 +59,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupLogging() {        
         logger.setup(logLevel: Config.Logger.LogLevel, showLogLevel: Config.Logger.ShowLogLevel, showFileNames: Config.Logger.ShowFileNames, showLineNumbers: Config.Logger.ShowLineNumbers, writeToFile: Config.Logger.WriteToFile, fileLogLevel: Config.Logger.FileLogLevel)
         
+        // Setup to show only the time
         var dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "hh:mm:ss:SSS"
         dateFormatter.locale = NSLocale.currentLocale()

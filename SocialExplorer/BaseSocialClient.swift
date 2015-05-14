@@ -8,7 +8,7 @@
 
 import Foundation
 
-
+// Common class to all social clients
 class BaseSocialClient {
     
     var xRatelimitLimit: Int?
@@ -43,8 +43,8 @@ class BaseSocialClient {
                 callback(token: token, error: nil)
             } else {
                 // No token
-                // TODO: Do OAuth request
-                logger.info("Instagram does not have a token")
+                logger.error("Instagram does not have a token")
+                 callback(token: nil, error: ErrorUtils.errorForInstagramWithoutToken())
             }
         } else {
             // 1.b NOT available

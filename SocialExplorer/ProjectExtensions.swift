@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import MapKit
 
 extension CoreDataStackManager {
     struct Constants {
@@ -38,43 +38,51 @@ extension SyncManager {
     }
 }
 
-// FIXME: This is no extension
-struct Instagram {
+// Ref: http://stackoverflow.com/a/7200744/223228
+extension MKMapView {
     
-    struct URL {
-        static let Authorize = "https://api.instagram.com/oauth/authorize/" //?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
-        
-        static let AccessToken = "https://api.instagram.com/oauth/access_token/"
-        
-        // Builds authorizarion URL 
-        // https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
-        static func buildAuthorizeClientURL() -> String {
-            
-            let parameters = [
-                ParameterKeys.ClientId: Config.Instagram.ClientId,
-                ParameterKeys.RedirectURI: Config.Instagram.RedirectURI,
-                ParameterKeys.ResponseType: ParameteValues.Code
-            ]
-            
-            let escapedParameters = HTTPUtils.escapedParameters(parameters)
-            
-            let url = "\(Authorize)\(escapedParameters)"
-            return url
+    func zoomToFitCurrentCoordenables(animated: Bool) {
+        let locations = self.annotations as NSArray
+        zoomToFitCoordenables(locations, animated: animated)
+    }
+    
+    func zoomToFitCoordenables(coordenables: NSArray, animated: Bool) {
+        if coordenables.count == 0 {
+            return
         }
+        
+        var topLeftCoord = CLLocationCoordinate2D(latitude: -90, longitude: 180)
+        var bottomRightCoord = CLLocationCoordinate2D(latitude: 90, longitude: -180)
+        
+        //        let locations = self.annotations as NSArray
+        
+        for element in coordenables {
+            let location = element as! Coordenable
+            topLeftCoord.longitude = fmin(topLeftCoord.longitude, location.coordinate.longitude)
+            topLeftCoord.latitude = fmax(topLeftCoord.latitude, location.coordinate.latitude)
+            bottomRightCoord.longitude = fmax(bottomRightCoord.longitude, location.coordinate.longitude)
+            bottomRightCoord.latitude = fmin(bottomRightCoord.latitude, location.coordinate.latitude)
+        }
+        
+        let latitude = topLeftCoord.latitude - (topLeftCoord.latitude - bottomRightCoord.latitude) * 0.5
+        let longitude = topLeftCoord.longitude + (bottomRightCoord.longitude - topLeftCoord.longitude) * 0.5
+        
+        let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        
+        // Add extra padding
+        let longitudeDelta = fabs(bottomRightCoord.longitude - topLeftCoord.longitude) * 1.1
+        let latitudeDelta = fabs(topLeftCoord.latitude - bottomRightCoord.latitude) * 1.6
+        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
+        
+        var region = MKCoordinateRegion(center: center, span: span)
+        
+        region = self.regionThatFits(region)
+        
+        self.setRegion(region, animated:animated)
     }
-    
-    struct ParameterKeys {
-        static let ClientId = "client_id"
-        static let RedirectURI = "redirect_uri"
-        static let ResponseType = "response_type"
-    }
-    
-    struct ParameteValues {
-        static let Code = "code"
-        static let Token = "token"
-    }
-    
 }
+
+
 
 
 

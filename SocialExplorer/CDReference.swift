@@ -21,7 +21,9 @@ enum CDReferenceState: String {
 }
 
 
-// Represents a reference poin in the map. It has a list of locations associated with it
+// Represents point in the map that "inspects" for locations arround it.
+// After it is moved it inspects new locations from the new location
+// The references is the "explorer" in the app. Is the one that explores locations
 
 @objc(CDReference)
 
@@ -158,23 +160,5 @@ class CDReference: NSManagedObject, Coordenable {
             return false
         }
     }
-//    func isReady() -> Bool {
-//        if state == CDReferenceState.Ready.rawValue {
-//            return true
-//        }
-//        return false
-//    }
-    
-//    func isUpdating() -> Bool {
-//        if state == CDReferenceState.Updating.rawValue {
-//            return true
-//        }
-//        return false
-//    }
-//    
-//    func markAsUpdating() {
-//        state = CDReferenceState.Updating.rawValue
-//    }
-    
 
 }

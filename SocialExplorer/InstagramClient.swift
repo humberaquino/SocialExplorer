@@ -12,8 +12,9 @@ import Alamofire
 import SwiftyJSON
 import ObjectMapper
 
+
+// Instagram REST client. Handle request to the Instagram API and returns JSON or DTOs
 class InstagramClient: BaseSocialClient {
-    
     
     let userSettings = UserSettings.sharedInstance()
     
@@ -268,6 +269,45 @@ extension InstagramClient {
         static func LikeMedia(mediaId: String) -> String {
             return "\(BaseSecureURL)/media/\(mediaId)/likes"
         }
+    }
+    
+}
+
+// MARK: OAuth
+
+struct InstagramOAuth {
+    
+    struct URL {
+        static let Authorize = "https://api.instagram.com/oauth/authorize/" //?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
+        
+        static let AccessToken = "https://api.instagram.com/oauth/access_token/"
+        
+        // Builds authorizarion URL
+        // https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
+        static func buildAuthorizeClientURL() -> String {
+            
+            let parameters = [
+                ParameterKeys.ClientId: Config.Instagram.ClientId,
+                ParameterKeys.RedirectURI: Config.Instagram.RedirectURI,
+                ParameterKeys.ResponseType: ParameteValues.Code
+            ]
+            
+            let escapedParameters = HTTPUtils.escapedParameters(parameters)
+            
+            let url = "\(Authorize)\(escapedParameters)"
+            return url
+        }
+    }
+    
+    struct ParameterKeys {
+        static let ClientId = "client_id"
+        static let RedirectURI = "redirect_uri"
+        static let ResponseType = "response_type"
+    }
+    
+    struct ParameteValues {
+        static let Code = "code"
+        static let Token = "token"
     }
     
 }

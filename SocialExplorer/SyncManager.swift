@@ -260,7 +260,6 @@ class SyncManager: NSObject {
     func syncNewLocations () {
         self.privateContext.performBlock {
             // 1. Get all new locations
-            // TODO: Should I get the failed too?
             var error: NSError?
             let newLocations = self.fetchAllNewAndFailedLocations(&error)
             if let error = error {
@@ -303,10 +302,8 @@ class SyncManager: NSObject {
             dispatch_group_notify(mediaDownloadGroup, self.SyncQueue) {
                  // 4. All locations now have their medias
                 logger.debug("Media download complete")
-                // TODO: Update reference state
                 self.privateContext.performBlock {
-                    self.updateReferenceStateBasedOnMedia()
-                    
+                    self.updateReferenceStateBasedOnMedia()                    
                     self.saveAndComplete()
                 }
             }
@@ -412,6 +409,7 @@ class SyncManager: NSObject {
         saveAndComplete()
     }
     
+    // Save the private and the main context. Then notify of completion
     func saveAndComplete() {
         self.privateContext.performBlock {
             // All media downloaded

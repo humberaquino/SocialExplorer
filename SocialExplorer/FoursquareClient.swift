@@ -12,6 +12,8 @@ import Alamofire
 import SwiftyJSON
 import ObjectMapper
 
+
+// Foursquare API client. Handles request and gets JSON or DTOs as results
 class FoursquareClient: BaseSocialClient {
         
     let userSettings = UserSettings.sharedInstance()
@@ -19,8 +21,8 @@ class FoursquareClient: BaseSocialClient {
     override func serviceActive() -> Bool {
         return userSettings.foursquare.isServiceActive()
     }
-           
-    //
+    
+    // Get the list of venues for a particulate coordinate
     func requestVenues(coordiante: CLLocationCoordinate2D, completion: (foursquareLocationDTOList: [FoursquareLocationDTO]!, error: NSError!) -> Void) {                
         
         let latitudeAndLongitude = "\(coordiante.latitude),\(coordiante.longitude)"
@@ -33,7 +35,6 @@ class FoursquareClient: BaseSocialClient {
             ParameterKeys.Limit: Config.Foursquare.SearchVenueLimit,
             ParameterKeys.Accuracy: Config.Foursquare.Accuracy
         ]
-        
         
         // 1. Request the location list for the provided coordinate
         Alamofire.request(.GET, URI.VenueSearch, parameters: parameters).response {
@@ -58,7 +59,6 @@ class FoursquareClient: BaseSocialClient {
             // 3. Parse the "data" element
             let jsonData = data as! NSData
             let json = JSON(data: jsonData)
-            // TODO: Key for strings
             let venuesList = json["response"]["venues"].arrayValue
             
             var foursquareLocationDTOList: [FoursquareLocationDTO] = []
@@ -76,10 +76,10 @@ class FoursquareClient: BaseSocialClient {
             completion(foursquareLocationDTOList: foursquareLocationDTOList, error: nil)
         }
         
-        
     }
     
 
+    // Get the list of photos for a particular venue
     func requestVenueInfoBy(venueId: String, completion: (foursquarePhotoDTOList: [FoursquarePhotoDTO]!, error: NSError!) -> Void) {
         
         let parameters: [String: AnyObject] = [

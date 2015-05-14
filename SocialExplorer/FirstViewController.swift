@@ -8,6 +8,7 @@
 
 import UIKit
 
+// The welcome view controller
 class FirstViewController: UIViewController {
 
     override func viewDidLoad() {

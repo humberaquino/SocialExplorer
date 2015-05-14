@@ -10,14 +10,6 @@ import Foundation
 import ObjectMapper
 
 // Represents a single instagram location
-
-// {
-//    "id": "788029",
-//    "latitude": 48.858844300000001,
-//    "longitude": 2.2943506,
-//    "name": "Eiffel Tower, Paris"
-// }
-
 // Ref: https://instagram.com/developer/endpoints/locations/
 
 class InstagramLocationDTO: Mappable {
@@ -34,9 +26,6 @@ class InstagramLocationDTO: Mappable {
     var longitude: Double?
     var name: String?
     
-//    var mediaList: [InstagramMediaRecentDTO] = []
-    
-    
     required init?(_ map: Map) {
         mapping(map)
     }
@@ -49,18 +38,7 @@ class InstagramLocationDTO: Mappable {
         longitude <- map[Keys.Longitude]
         name <- map[Keys.Name]
     }
-    
-//    func addMedia(media: InstagramMediaRecentDTO) {
-//        media.parent = self
-//        mediaList.append(media)
-//    }
-//    
-//    func addMedias(mediaList: [InstagramMediaRecentDTO]) {
-//        for media in mediaList {
-//            addMedia(media)
-//        }
-//    }
-    
+
     func asDict() -> [String: AnyObject] {
         let dict: [String: AnyObject] = [
             CDLocation.Keys.Id: self.id!,

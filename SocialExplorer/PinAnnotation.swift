@@ -10,14 +10,18 @@ import Foundation
 import MapKit
 import CoreData
 
+// A class that represents a pin in the map that i associated with a Core data model
+
 @objc
 class PinAnnotation: NSObject, MKAnnotation {
     
     var coordinate: CLLocationCoordinate2D
     var objectID: NSManagedObjectID
+
     var title: String?
     var subtitle: String?
-    
+
+    // The name of the model that the objectID refers to.
     var model: String
     
     init (objectID: NSManagedObjectID, coordinate: CLLocationCoordinate2D, model: String) {

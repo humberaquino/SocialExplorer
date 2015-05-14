@@ -13,7 +13,9 @@ import XCGLogger
 // in different environments. E.g. development, production, testing
 
 struct Config {
-    
+        
+    // Foursquare customizable settings
+    // Please use your keys
     struct Foursquare {
         static let ClientId = "SGEUNLGUMKP4ZEOK1YTCQUMQPOH1FM1SZBUNOIUGFUU33E2G"
         static let ClientSecret = "UUMP15CCXSKY2BTJSAU2LAXQXY2E1GCCK0Z1SDE3DRIMKUQE"
@@ -24,7 +26,8 @@ struct Config {
         static let Accuracy = 1000
     }
     
-    // Instagram constants
+    // Instagram customizable settings
+    // Please use your keys
     struct Instagram {
         static let ClientId = "939662edefdf44b4ad227ba1b5e24b21"
         static let ClientSecret = "9fc9111fd65945afb555f2c2ab089e81"

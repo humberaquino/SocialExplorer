@@ -9,8 +9,9 @@
 import Foundation
 import MapKit
 
-// Singleton used persist and obtain user settings
+// Singleton used to persist and obtain settings
 class UserSettings {
+    
     let discoveryMap = DiscoveryMapSettings()
     let instagram = ServiceSettings(service: .Instagram)
     let foursquare = ServiceSettings(service: .Foursquare)

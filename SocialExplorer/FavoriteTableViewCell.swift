@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-// View cell for a favorite
+// View cell for a favorite media
 class FavoriteCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var imageView: UIImageView!

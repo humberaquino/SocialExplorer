@@ -10,9 +10,9 @@ import Foundation
 import UIKit
 import Haneke
 
+// Cell used to show a media in a table
 class MediaTableViewCell: UITableViewCell {
     
-    @IBOutlet weak var typeButton: UIButton!
     @IBOutlet weak var tumbnailImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var detailLabel: UILabel!
@@ -21,7 +21,6 @@ class MediaTableViewCell: UITableViewCell {
 
     var mediaSelected: CDMedia!
     
-    
     func configureUsingMedia(media: CDMedia) {
         mediaSelected = media
         
@@ -29,9 +28,6 @@ class MediaTableViewCell: UITableViewCell {
         detailLabel.text = media.detail
         locationLabel.text = media.parentLocation.name
 
-        // TODO: Configure star based on saved or not saved
-        
-        // TODO: Error checking
         let url = NSURL(string: media.thumbnailURL)!
         tumbnailImageView?.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original"), success:{
             image in
@@ -40,11 +36,9 @@ class MediaTableViewCell: UITableViewCell {
         })
         
         updateStarButton()
-                
     }
     
     @IBAction func startPressedAction(sender: UIButton) {
-        // TODO: Implement
         mediaSelected.toogleFavorited()
         
         // shared context
@@ -57,16 +51,15 @@ class MediaTableViewCell: UITableViewCell {
         }
         
         CoreDataStackManager.sharedInstance().saveContext { hasChanged in
-            // TODO: named: with contants
             self.updateStarButton()
         }
     }
     
     func updateStarButton() {
         if self.mediaSelected.isFavorited() {
-            self.starButton.setImage(UIImage(named: "star-highlighted"), forState: .Normal)
+            self.starButton.setImage(UIImage(named: ImageName.StarHighlighted), forState: .Normal)
         } else {
-            self.starButton.setImage(UIImage(named: "star"), forState: .Normal)
+            self.starButton.setImage(UIImage(named: ImageName.Star), forState: .Normal)
         }
     }
 }

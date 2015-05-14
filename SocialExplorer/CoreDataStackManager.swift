@@ -10,10 +10,16 @@ import Foundation
 import CoreData
 import XCGLogger
 
+// The core data stack manager
+// The scheme used has two context:
+//  1. saveManagedObjectContext: The context that interacts with the persistent store coordinator. Is a PrivateQueueConcurrencyType and for that reason it does not use the main queue.
+//  2. managedObjectContext: The main context that runs on the main queue. Is the one used to create new private contexts or interac from the UI
 class CoreDataStackManager {    
     
     // MARK: - Core Data Saving support
     
+    // Main save method. It saves the main context to the SaveContext whicn does the "write" to the
+    // PSC in the background
     func saveContext (wait: Bool = false, completion: ((hadChanges: Bool) -> Void)? = nil) {
         if let mainContext = self.managedObjectContext,
             let saveContext = self.saveManagedObjectContext {
@@ -66,6 +72,7 @@ class CoreDataStackManager {
     
     // MARK: - Core Data stack
     
+    // The context used to save the data into the PSC
     private lazy var saveManagedObjectContext: NSManagedObjectContext? = {
         
         logger.info("Initializing the managed object context property")
@@ -80,6 +87,7 @@ class CoreDataStackManager {
         return saveManagedObjectContext
     }()
     
+    // Main context that runs on the main queue. It's parent is the saveManagedObjectContext
     lazy var managedObjectContext: NSManagedObjectContext? = {
         
         var managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType

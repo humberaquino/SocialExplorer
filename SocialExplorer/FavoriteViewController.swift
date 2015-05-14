@@ -12,13 +12,13 @@ import CoreData
 import Haneke
 import XCGLogger
 
+
+// Favorite tab collection. Show the images of the favorite media
 class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, NSFetchedResultsControllerDelegate {
     
+    // Constants
     let NoFavorites = "No favorites"
-    
     let MediaDetailSegueId = "MediaDetailSegue"
-    
-    
     let FavoriteCell = "FavoriteCell"
     let LocationSpanValue = 0.004
     
@@ -32,29 +32,23 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
     
     var sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext!
     
+    // The selected media to show in in detail if the image is selected
     var mediaSelected: CDMedia!
     
-    // Service layer to interact with Core Data and the photos
-//    let photoService = PhotoService()
     
     // MARK: - View life cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Start the fetched results controller
-        var error: NSError?
-        fetchedResultsController.performFetch(&error)
-        
-        if let error = error {
-            println("Error performing initial fetch: \(error)")
-        }
-        
+        // Get the media list
+        performFetchResults()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        // Display a message in case there are no favorites
         if let fetchedObjecs = fetchedResultsController.fetchedObjects {
             if fetchedObjecs.count == 0 {
                 displayCenteredLabel(NoFavorites)
@@ -64,16 +58,11 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
         }
     }
     
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-    
     // MARK: - UICollectionViewDataSource
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let sectionInfo = self.fetchedResultsController.sections![section] as! NSFetchedResultsSectionInfo
-        
-        println("Number of cells: \(sectionInfo.numberOfObjects)")
+        logger.debug("Number of cells: \(sectionInfo.numberOfObjects)")
         return sectionInfo.numberOfObjects
     }
     
@@ -82,32 +71,27 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(FavoriteCell, forIndexPath: indexPath) as! FavoriteCollectionViewCell
-        
         self.configureCell(cell, atIndexPath: indexPath)
-        
         return cell
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         
+        // Get the selected Media
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! FavoriteCollectionViewCell
-        
-        // Delete image
         let media = self.fetchedResultsController.objectAtIndexPath(indexPath) as! CDMedia
        
-        // TODO: Segue to Detail
+        // Select it and go to the Media detail view
         mediaSelected = media
-
         performSegueWithIdentifier(MediaDetailSegueId, sender: self)
     }
     
+    
     func configureCell(cell: FavoriteCollectionViewCell, atIndexPath indexPath: NSIndexPath) {
-        
         let media = self.fetchedResultsController.objectAtIndexPath(indexPath) as! CDMedia
+        // Get the image is exist
         if let url = NSURL(string: media.imageURL) {
-            
             cell.imageView.hnk_setImageFromURL(url, format: Format<UIImage>(name: "original"), failure:{ error in
                 logger.error(error!.localizedDescription)
                 }, success:{
@@ -115,43 +99,36 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
                     cell.imageView.image = image
                     cell.setNeedsDisplay()
             })
-           
         }
     }
     
     // MARK: - NSFetchedResultsControllerDelegate
     
-    // Whenever changes are made to Core Data the following three methods are invoked. This first method is used to create
-    // three fresh arrays to record the index paths that will be changed.
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
         // We are about to handle some new changes. Start out with empty arrays for each change type
         insertedIndexPaths = [NSIndexPath]()
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
-        
-        println("in controllerWillChangeContent")
     }
     
-    // The second method may be called multiple times, once for each Image object that is added, deleted, or changed.
-    // We store the incex paths into the three arrays.
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
         switch type{
             
         case .Insert:
-            println("Insert an item")
+            logger.debug("Insert an item")
             insertedIndexPaths.append(newIndexPath!)
             break
         case .Delete:
-            println("Delete an item")
+            logger.debug("Delete an item")
             deletedIndexPaths.append(indexPath!)
             break
         case .Update:
-            println("Update an item.")
+            logger.debug("Update an item.")
             updatedIndexPaths.append(indexPath!)
             break
         case .Move:
-            println("Move an item. We don't expect to see this in this app.")
+            logger.debug("Move an item. We don't expect to see this in this app.")
             break
         default:
             break
@@ -168,8 +145,6 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
         
         println("in controllerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
         
-//        collectionView.performBatchUpdates(<#updates: (() -> Void)?##() -> Void#>, completion: <#((Bool) -> Void)?##(Bool) -> Void#>)
-        
         collectionView.performBatchUpdates({() -> Void in
             
             for indexPath in self.insertedIndexPaths {
@@ -185,14 +160,10 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
             }
             
             }, completion: { done in
-                logger.debug("Done")
+                logger.debug("Done updating in batch")
         })
         
     }
-    
-    
-    
-    // MARK: - Actions
     
     
     // MARK: Segue
@@ -207,18 +178,15 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
   
     
     // MARK: - Utilities
-
     
     // Display a text in the centered label. Used for message about the collection
     func displayCenteredLabel(message: String) {
         collectionCenteredLabel.text = message
         self.collectionCenteredLabel.hidden = false
-        
-//        UIView.animateWithDuration(0.8, animations: { () -> Void in
-            self.collectionCenteredLabel.alpha = 1
-//        })
+        self.collectionCenteredLabel.alpha = 1
     }
     
+    // Hide the centered information label with an animation
     func hideCenteredLabel() {
         UIView.animateWithDuration(0.4, animations: { () -> Void in
             self.collectionCenteredLabel.alpha = 0
@@ -230,14 +198,22 @@ class FavoriteViewController: UIViewController, UICollectionViewDataSource, UICo
     
     // MARK: - NSFetchedResultsController
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        
+    func performFetchResults() {
+        var error: NSError?
+        fetchedResultsController.performFetch(&error)
+        if let error = error {
+            showMessageWithTitle("Error while trying to get the medias", message: error.localizedDescription)
+            logger.error("Error performing initial fetch: \(error)")
+        }
+    }
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {        
         let fetchRequest = NSFetchRequest(entityName: CDMedia.ModelName)
-        
         fetchRequest.predicate = NSPredicate(format: "%K = %@", CDMedia.PropertyKeys.State, CDMediaState.Favorited.rawValue)
         fetchRequest.sortDescriptors = []
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        
         fetchedResultsController.delegate = self
         
         return fetchedResultsController

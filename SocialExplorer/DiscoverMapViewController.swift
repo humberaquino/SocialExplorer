@@ -13,39 +13,46 @@ import CoreData
 import CoreLocation
 import XCGLogger
 
-
+// Class that deals reference creations, deletions and updates
 class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetchedResultsControllerDelegate, CLLocationManagerDelegate {
     
+    // Segues id
     let ReferenceLocationSelectedSegueId = "ReferenceLocationSelected"
     
+    // Reusable annotations
     let LocationPinReusableAnnotationId = "LocationPinReusableAnnotationId"
     let ReferencePinReusableAnnotationId = "ReferencePinReusableAnnotationId"
     
     let userSettings = UserSettings.sharedInstance()
     
-    @IBOutlet weak var refreshButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
     
-    var sharedContext: NSManagedObjectContext!
-    
+    // Gerture used to add a reference
     var longTapRecognizer: UILongPressGestureRecognizer!
     
+    // Selections
     var selectedReferencePinAnnotation: PinAnnotation!
     var selectedLocationPinAnnotation: PinAnnotation!
     
+    // Core data
+    var sharedContext: NSManagedObjectContext!
     var referenceLocationsFetchedResultsController: NSFetchedResultsController!
     
+    // Location manager
     var locationManager: CLLocationManager!
+    // Delta used when requesting my location
+    let MyLocationDelta = 0.04
+    
     
     // MARK: View life cycle 
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Core Data
+        // shared main context
         sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext
         
-        // Setup delegate
+        // Setup map delegate
         mapView.delegate = self
         
         // Setup long tap gesture recognizer to add pin locations
@@ -55,34 +62,21 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         // Load previous map state
         loadMapViewRegion()
         
-        // TODO: Handle the error with a alertview
+        // Obser the start and end of the syncronization process
+        registerObservers()
+        
         // Do the initial fetch
-        var error: NSError?
-        fetchedResultsController.performFetch(&error)
+        performFetchResults()
         
-        if let error = error {
-            logger.error("Error performing initial fetch: \(error)")
-        }
-        
+        // Add pins to the map based on fetched objects
         reloadAnnotationsToMapViewFromFetchedResults()
         
-        self.registerObservers()
+        // Used to start a sync
+        configureRefreshButton()
         
-        self.configureRefreshButton()
+        // To get my current location
+        setupLocationManager()
         
-        // Location manager
-        locationManager = CLLocationManager()
-//        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        
-//        locationManager.startUpdatingLocation()
-        
-        mapView.showsUserLocation = true
-        
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-           
-        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -96,20 +90,36 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         
     }
     
+    deinit {
+        unregisterObservers()
+    }
+    
+    // MARK: - CLLocationManagerDelegate
+    
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
         var locValue:CLLocationCoordinate2D = manager.location.coordinate
-        logger.debug("locations = \(locValue.latitude) \(locValue.longitude)")
+        logger.debug("location = \(locValue.latitude) \(locValue.longitude)")
         locationManager.stopUpdatingLocation()
         
         let center = CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude)
-        // FIXME
-        let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
-        
+        let span = MKCoordinateSpan(latitudeDelta: MyLocationDelta, longitudeDelta: MyLocationDelta)
         let region = MKCoordinateRegion(center: center, span: span)
         
         mapView.setRegion(region, animated: true)
     }
     
+    func setupLocationManager() {
+        // Location manager
+        locationManager = CLLocationManager()
+        mapView.showsUserLocation = true
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        }
+    }
+    
+    // MARK: Notifications
     
     func registerObservers() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleSyncComplete:", name: SyncManagerEvent.SyncComplete.rawValue, object: nil)
@@ -141,18 +151,13 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     }
     
     
-    deinit {
-        unregisterObservers()
-    }
+    // MARK: - Configure buttons
     
     func refreshButtonToActivityView() {
-//        let activityView = UIActivityIndicatorView(frame: )
         let activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
         activityView.frame = CGRect(x: 0, y: 0, width: 25, height: 25)
         activityView.hidesWhenStopped = true
-//        activityView.sizeToFit()
         activityView.startAnimating()
-//        activityView.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin | UIViewAutoresizing.FlexibleRightMargin | UIViewAutoresizing.FlexibleTopMargin | UIViewAutoresizing.FlexibleBottomMargin
         let loadingView = UIBarButtonItem(customView: activityView)
         self.navigationItem.rightBarButtonItem = loadingView
     }
@@ -162,8 +167,9 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         self.navigationItem.rightBarButtonItem = refreshButton
     }
     
+    // MARK: - Actions
     
-    @IBAction func forceSyncAction(sender: UIBarButtonItem) {
+    func forceSyncAction(sender: UIBarButtonItem) {
         sender.enabled = false
         SyncManager.sharedInstance().sync {
             started in
@@ -173,6 +179,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         }
     }
     
+    // Zoom the map to show all locations of the selected reference
     @IBAction func zoomToShowAllLocationsAction(sender: UIButton) {
         if referenceLocationsFetchedResultsController != nil {
             if let locations = referenceLocationsFetchedResultsController.fetchedObjects as? [CDLocation] {
@@ -182,6 +189,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         }
     }
     
+    // Zoom the map to show all references
     @IBAction func zoomRoShowAllReferencesAction(sender: UIButton) {
         removeExistingLocationAnnotationsFromMap()
         if let references = fetchedResultsController.fetchedObjects as? [CDReference] {
@@ -200,7 +208,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         if gestureRecognizer.state != UIGestureRecognizerState.Began {
             return
         }
-        logger.info("--> Long tap gesture")
+        logger.debug("Long tap gesture")
         
         let tapPoint = gestureRecognizer.locationInView(mapView)
         let tapMapCoordiantes = mapView.convertPoint(tapPoint, toCoordinateFromView: mapView)
@@ -208,7 +216,6 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         saveNewReferenceUsing(tapMapCoordiantes)
     }
    
-
     
     // MARK: - MKMapViewDelegate
 
@@ -249,13 +256,13 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         configureAnnotationView(annotationView)
         
         let detailButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
-        detailButton.setImage(UIImage(named: "getin"), forState: UIControlState.Normal)
+        detailButton.setImage(UIImage(named: ImageName.Getin), forState: UIControlState.Normal)
         annotationView.rightCalloutAccessoryView = detailButton
         
         // Only the reference has teh action sheet
         if pinAnnotation.model == CDReference.ModelName {
             let otherButton: UIButton = UIButton.buttonWithType(UIButtonType.DetailDisclosure) as! UIButton
-            otherButton.setImage(UIImage(named: "gear"), forState: UIControlState.Normal)
+            otherButton.setImage(UIImage(named: ImageName.Gear), forState: UIControlState.Normal)
             annotationView.leftCalloutAccessoryView = otherButton
         }
         
@@ -278,7 +285,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
         let annotation = view.annotation as! PinAnnotation
         if control == view.rightCalloutAccessoryView {
-            
+            // Go to the reference view controller
             if annotation.model == CDReference.ModelName {
                 selectedReferencePinAnnotation = annotation
             } else {
@@ -286,30 +293,18 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
             }
             
             performSegueWithIdentifier(ReferenceLocationSelectedSegueId, sender: self)
-//            if annotation.model == CDReference.ModelName {
-//                // Mark the selected location to use it while preparing for segue
-//                
-//            } else if annotation.model == CDLocation.ModelName {
-//                // TODO: Segue to images at location
-//                
-//                
-//                
-//            }
         } else if control == view.leftCalloutAccessoryView {
-
+            // Show the action sheet for the reference
             if annotation.model == CDReference.ModelName {
                 // Mark the selected location to use it while preparing for segue
                 let reference = self.sharedContext.objectWithID(annotation.objectID) as! CDReference
                 self.showReferenceActionSheet(reference) {
-                    // TODO: Move this to a service class
                     self.sharedContext.deleteObject(reference)
                     CoreDataStackManager.sharedInstance().saveContext { hadChanges in
                         self.deselectCurrentPinAndRemoveLocations()
                     }
                 }
             }
-            
-           
         }
     }
     
@@ -323,19 +318,16 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         selectedReferencePinAnnotation = pinAnnotation
         
         referenceLocationsFetchedResultsController = setupReferenceLocationsFetchedResultsController()!
+        
         var error: NSError?
         referenceLocationsFetchedResultsController.performFetch(&error)
         if let error = error {
+            showMessageWithTitle("Error fetching locations for reference", message: error.localizedDescription)
             logger.error("Error fetching locations for reference: \(error.localizedDescription)")
         }
         
         reloadSelectedReferenceLocationsFromMap()
     }
-    
-    // TODO: Move
-    
-    
-    
     
     func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
             let pinAnnotation = view.annotation as! PinAnnotation
@@ -387,31 +379,8 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     }
 
 
-    // MARK: - Persistense
     
-    func saveNewReferenceUsing(coordinate: CLLocationCoordinate2D) {
-        let dict = [
-            CDReference.Keys.Latitude: coordinate.latitude,
-            CDReference.Keys.Longitude: coordinate.longitude
-        ]
-        
-        // Save the new location
-        let newReference = CDReference(dictionary: dict, context: sharedContext)
-        CoreDataStackManager.sharedInstance().saveContext { hadChanges in
-            
-            // Get the address names
-            self.reverseGeocodeLocationForLocation(newReference) {
-                (error) in
-                if let error = error {
-                    self.showMessageWithTitle("Geocoder error", message: error.localizedDescription)
-                }
-                
-                // Start the sync
-                SyncManager.sharedInstance().sync()
-            }
-        }
-    }
-    
+    // Get the name of the reference
     func reverseGeocodeLocationForLocation(reference: CDReference, completion: (error: NSError?) -> Void) {
         let geocoder = CLGeocoder()
         let location = CLLocation(latitude: reference.latitude, longitude: reference.longitude)
@@ -446,20 +415,20 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         mapView.removeAnnotations(currentAnnotations)
         
         // add all of them
-        let ferchedObjects = fetchedResultsController.fetchedObjects as! [CDReference]
-        var pinAnnotations = [PinAnnotation]()
-        for reference in ferchedObjects {
-            let pinAnnotation = PinAnnotation(objectID: reference.objectID, coordinate: reference.coordinate, model: CDReference.ModelName)
-            pinAnnotations.append(pinAnnotation)
+        if let ferchedObjects = fetchedResultsController.fetchedObjects as? [CDReference] {
+            var pinAnnotations = [PinAnnotation]()
+            for reference in ferchedObjects {
+                let pinAnnotation = PinAnnotation(objectID: reference.objectID, coordinate: reference.coordinate, model: CDReference.ModelName)
+                pinAnnotations.append(pinAnnotation)
+            }
+            mapView.addAnnotations(pinAnnotations)
         }
-        
-        mapView.addAnnotations(pinAnnotations)
     }
     
+    
+    // Adds the correct locations for the selected reference into the map
     func reloadSelectedReferenceLocationsFromMap() {
-        
         removeExistingLocationAnnotationsFromMap()
-        
         if selectedReferencePinAnnotation != nil {
             let locations = referenceLocationsFetchedResultsController.fetchedObjects as! [CDLocation]
             var pinAnnotations = [PinAnnotation]()
@@ -471,6 +440,8 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         }
     }
     
+    
+    // Removes the location annotations from the map
     func removeExistingLocationAnnotationsFromMap() {
         let currentAnnotations = mapView.annotations
         for annotation in currentAnnotations {
@@ -484,23 +455,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         
     }
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        
-        let fetchRequest = NSFetchRequest(entityName: CDReference.ModelName)
-        
-        fetchRequest.sortDescriptors = []
-        
-        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController.delegate = self
-        
-        return fetchedResultsController
-    }()
-    
-    
-    
-    
     // MARK: - NSFetchedResultsControllerDelegate
-    
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
@@ -517,7 +472,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
                 fetchedResultsChangeUpdate(reference)
                 break
             case .Move:
-                fetchedResultsChangeMove(reference)
+                // No supported
                 break
             }
         }
@@ -557,10 +512,6 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         
     }
     
-    func fetchedResultsChangeMove(reference: CDReference) {
-        // FIXME: Is this even called?
-    }
-    
     func configureAnnotationView(annotationView: MKAnnotationView) {
         let pinAnnotation = annotationView.annotation as! PinAnnotation
         
@@ -597,13 +548,11 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
             pinAnnotation.title = location.name
             pinAnnotation.subtitle = location.subtitle
             
-            
             var image: UIImage!
             if location.locationType == SocialNetworkType.Instagram.rawValue {
-                image = UIImage(named: "MiniInstagram")
+                image = UIImage(named: ImageName.MiniInstagram)
             } else {
-                image = UIImage(named: "MiniFoursquare")
-                
+                image = UIImage(named: ImageName.MiniFoursquare)
             }
             
             annotationView.image = image
@@ -618,8 +567,52 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         
     }
     
+    // MARK: - Persistence
     
-    // MARK: - Persistence utils
+    func saveNewReferenceUsing(coordinate: CLLocationCoordinate2D) {
+        let dict = [
+            CDReference.Keys.Latitude: coordinate.latitude,
+            CDReference.Keys.Longitude: coordinate.longitude
+        ]
+        
+        // Save the new location
+        let newReference = CDReference(dictionary: dict, context: sharedContext)
+        CoreDataStackManager.sharedInstance().saveContext { hadChanges in
+            
+            // Get the address names
+            self.reverseGeocodeLocationForLocation(newReference) {
+                (error) in
+                if let error = error {
+                    self.showMessageWithTitle("Geocoder error", message: error.localizedDescription)
+                }
+                
+                // Start the sync
+                SyncManager.sharedInstance().sync()
+            }
+        }
+    }
+
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        
+        let fetchRequest = NSFetchRequest(entityName: CDReference.ModelName)
+        
+        fetchRequest.sortDescriptors = []
+        
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        return fetchedResultsController
+    }()
+    
+    func performFetchResults() {
+        var error: NSError?
+        fetchedResultsController.performFetch(&error)
+        if let error = error {
+            showMessageWithTitle("Error while trying to get the references", message: error.localizedDescription)
+            logger.error("Error performing initial fetch: \(error)")
+        }
+    }
     
     // Load the saved region if exists in NSUserData
     func loadMapViewRegion() {
@@ -641,8 +634,8 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
 
 // MARK: Reference's locations
 
-extension DiscoverMapViewController {
-
+extension DiscoverMapViewController {    
+    
     func selectedReference() -> CDReference? {
         if selectedReferencePinAnnotation != nil {
             let reference = sharedContext.objectWithID(selectedReferencePinAnnotation.objectID) as! CDReference
@@ -675,6 +668,7 @@ extension DiscoverMapViewController {
 
 
 extension MKMapView {
+    // Based on the objectID, it searchs into the map a PinAnnotation
     func findPinAnnotationWithObjectID(objectID: NSManagedObjectID) -> PinAnnotation? {
         let currentAnnotations = self.annotations
         for annotation in currentAnnotations {

@@ -17,6 +17,9 @@ enum CDLocationState: String {
     case Failed = "failed"
 }
 
+
+// A location is a Instagram or Foursquare place. It has many media that one can view
+
 @objc(CDLocation)
 
 class CDLocation: NSManagedObject, MKAnnotation, Coordenable {

@@ -12,6 +12,7 @@ import XCGLogger
 import OAuthSwift
 import SwiftOverlays
 
+// View used to enable or disable the social networks to use
 class SettingsViewController: UITableViewController {
     
     
@@ -19,15 +20,14 @@ class SettingsViewController: UITableViewController {
     
     @IBOutlet weak var instagramSwitch: UISwitch!
     @IBOutlet weak var foursquareSwitch: UISwitch!
-    
     @IBOutlet weak var instagramLabel: UILabel!
     @IBOutlet weak var foursquareLabel: UILabel!
-    
     @IBOutlet weak var continueCell: UITableViewCell!
     
     var instagramToken: String!
     
     let userSettings = UserSettings.sharedInstance()
+    
     
     // MARK: - View life cycle
     
@@ -40,8 +40,6 @@ class SettingsViewController: UITableViewController {
         super.viewWillAppear(animated)
         
         self.removeAllOverlays()
-        
-        
         
         // Configure UI for Instagram
         self.configureInstagram()
@@ -94,8 +92,6 @@ class SettingsViewController: UITableViewController {
     }
     
     @IBAction func foursquareSwitchChange(sender: UISwitch) {
-        
-        
         let userSettings = UserSettings.sharedInstance()
         if sender.on {
             logger.debug("Enabling Foursquare")
@@ -104,52 +100,8 @@ class SettingsViewController: UITableViewController {
             logger.debug("Disabling Foursquare")
             userSettings.foursquare.disactivateService()
         }
-        configureContinueCell()
-      
+        configureContinueCell()      
     }
-    
-    // MARK: Segue
-    
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == ShowMainViewId {
-            
-        }
-    }
-    
-    
-    // MARK: - Authentication
-    
-    // TODO: Move this to Authentication/Netowrking class
-    func startInstagramAuthentication() {
-        self.startAuthWithMessage("Authenticating", disablingSwitch:instagramSwitch)
-        
-        // Connect
-        let oauthswift = OAuth2Swift(consumerKey: Config.Instagram.ClientId, consumerSecret: Config.Instagram.ClientSecret, authorizeUrl: Instagram.URL.Authorize, accessTokenUrl: Instagram.URL.AccessToken, responseType: Instagram.ParameteValues.Code)
-        
-        
-        // FIXME
-        let url = NSURL(string: "SocialExplorer://oauth-callback/instagram")!
-        
-        let userSettings = UserSettings.sharedInstance()
-        
-        let state: String = generateStateWithLength(20) as String
-        oauthswift.authorizeWithCallbackURL(url, scope: "basic+likes", state: state,
-            success: { (credential, response) -> Void in
-                
-                // Save token and and instagram enabled state
-                self.instagramToken = credential.oauth_token
-                userSettings.instagram.saveTokenAsCurrent(credential.oauth_token)
-                
-                // Complete the auth
-                self.completeAuthAndEnableSwitch(self.instagramSwitch)
-            },
-            failure: { (error) -> Void in
-                logger.error(error.localizedDescription)
-                // Complete the auth
-                self.completeAuthAndEnableSwitch(self.instagramSwitch)
-        })
-    }
-    
     
     // MARK: - Utility methods
     
@@ -176,4 +128,39 @@ class SettingsViewController: UITableViewController {
         }
     }
     
+}
+
+
+ // MARK: - Authentication
+
+extension SettingsViewController {
+   
+    func startInstagramAuthentication() {
+        self.startAuthWithMessage("Authenticating", disablingSwitch:instagramSwitch)
+        
+        // Connect
+        let oauthswift = OAuth2Swift(consumerKey: Config.Instagram.ClientId, consumerSecret: Config.Instagram.ClientSecret, authorizeUrl: InstagramOAuth.URL.Authorize, accessTokenUrl: InstagramOAuth.URL.AccessToken, responseType: InstagramOAuth.ParameteValues.Code)
+        
+        
+        let url = NSURL(string: "SocialExplorer://oauth-callback/instagram")!
+        
+        let userSettings = UserSettings.sharedInstance()
+        
+        let state: String = generateStateWithLength(20) as String
+        oauthswift.authorizeWithCallbackURL(url, scope: "basic+likes", state: state,
+            success: { (credential, response) -> Void in
+                
+                // Save token and and instagram enabled state
+                self.instagramToken = credential.oauth_token
+                userSettings.instagram.saveTokenAsCurrent(credential.oauth_token)
+                
+                // Complete the auth
+                self.completeAuthAndEnableSwitch(self.instagramSwitch)
+            },
+            failure: { (error) -> Void in
+                logger.error(error.localizedDescription)
+                // Complete the auth
+                self.completeAuthAndEnableSwitch(self.instagramSwitch)
+        })
+    }
 }

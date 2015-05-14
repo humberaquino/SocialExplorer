@@ -45,6 +45,7 @@
 		57D2C1EF1AFE3ADB006C3C61 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */; };
 		57DC7EBC1B00E6C7004C6FF6 /* MediaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57DC7EBB1B00E6C7004C6FF6 /* MediaTableViewCell.swift */; };
 		57DC7EC11B00EDF1004C6FF6 /* Coordenable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */; };
+		57F8DD081B054B9600970A45 /* ImageName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F8DD071B054B9600970A45 /* ImageName.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,7 @@
 		57D2C1EE1AFE3ADB006C3C61 /* SyncManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		57DC7EBB1B00E6C7004C6FF6 /* MediaTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewCell.swift; sourceTree = "<group>"; };
 		57DC7EC01B00EDF1004C6FF6 /* Coordenable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coordenable.swift; sourceTree = "<group>"; };
+		57F8DD071B054B9600970A45 /* ImageName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageName.swift; sourceTree = "<group>"; };
 		689D50B200AA8C346D5ED51E /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		C8C7C0685EBB16728355165C /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		CC0FC88CB1475B41DF71C662 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -137,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				5701E7D01AF67A080021547D /* Utils.swift */,
+				57F8DD071B054B9600970A45 /* ImageName.swift */,
 				5701E7CE1AF678C30021547D /* ProjectExtensions.swift */,
 				5750D9031AF96D3500D93191 /* UIKitExtensions.swift */,
 				5750D90C1AF9831300D93191 /* FoundationExtensions.swift */,
@@ -162,13 +165,13 @@
 			name = DTO;
 			sourceTree = "<group>";
 		};
-		5750D8F61AF92E8200D93191 /* Discovery map */ = {
+		5750D8F61AF92E8200D93191 /* Discover map */ = {
 			isa = PBXGroup;
 			children = (
 				5750D8F41AF82ADD00D93191 /* DiscoverMapViewController.swift */,
 				575510EF1B0013AB0065C834 /* PinAnnotation.swift */,
 			);
-			name = "Discovery map";
+			name = "Discover map";
 			sourceTree = "<group>";
 		};
 		5750D8FC1AF93CB700D93191 /* Core Data */ = {
@@ -217,17 +220,11 @@
 			children = (
 				570822881AF7FF8A007B09C3 /* Start */,
 				57BD6FAA1B03A6D9005765C4 /* Favorite */,
-				5750D8F61AF92E8200D93191 /* Discovery map */,
-				57DC7EBD1B00EAEF004C6FF6 /* Reference */,
+				5750D8F61AF92E8200D93191 /* Discover map */,
+				57DC7EBD1B00EAEF004C6FF6 /* Locations */,
+				57F8DD091B054E8700970A45 /* Media */,
 			);
 			name = View;
-			sourceTree = "<group>";
-		};
-		577D70BF1B01569A009CF1D1 /* Service */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Service;
 			sourceTree = "<group>";
 		};
 		57ADE40B1AF67259004C3690 = {
@@ -257,14 +254,12 @@
 				57ADE4191AF6725A004C3690 /* AppDelegate.swift */,
 				57ADE41D1AF6725A004C3690 /* Main.storyboard */,
 				577D70BE1B015690009CF1D1 /* View */,
-				577D70BF1B01569A009CF1D1 /* Service */,
 				5750D9091AF9767000D93191 /* Network */,
 				570822861AF7FF61007B09C3 /* Settings */,
 				5750D8FC1AF93CB700D93191 /* Core Data */,
 				570822871AF7FF76007B09C3 /* Utils */,
 				57ADE4171AF67259004C3690 /* Supporting Files */,
-				57ADE4201AF6725A004C3690 /* Images.xcassets */,
-				57ADE4221AF6725A004C3690 /* LaunchScreen.xib */,
+				57F8DD061B0545B600970A45 /* Assets */,
 			);
 			path = SocialExplorer;
 			sourceTree = "<group>";
@@ -354,14 +349,30 @@
 			name = DTO;
 			sourceTree = "<group>";
 		};
-		57DC7EBD1B00EAEF004C6FF6 /* Reference */ = {
+		57DC7EBD1B00EAEF004C6FF6 /* Locations */ = {
 			isa = PBXGroup;
 			children = (
 				57BD6FA91B038070005765C4 /* cell */,
 				5750D9011AF94B7300D93191 /* ReferenceViewController.swift */,
+			);
+			name = Locations;
+			sourceTree = "<group>";
+		};
+		57F8DD061B0545B600970A45 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				57ADE4201AF6725A004C3690 /* Images.xcassets */,
+				57ADE4221AF6725A004C3690 /* LaunchScreen.xib */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
+		57F8DD091B054E8700970A45 /* Media */ = {
+			isa = PBXGroup;
+			children = (
 				577D70BC1B014FA8009CF1D1 /* MediaViewController.swift */,
 			);
-			name = Reference;
+			name = Media;
 			sourceTree = "<group>";
 		};
 		655A3C721308B859CACE12FF /* Pods */ = {
@@ -563,6 +574,7 @@
 				5701E7D11AF67A080021547D /* Utils.swift in Sources */,
 				57D2C1EF1AFE3ADB006C3C61 /* SyncManager.swift in Sources */,
 				5750D90D1AF9831300D93191 /* FoundationExtensions.swift in Sources */,
+				57F8DD081B054B9600970A45 /* ImageName.swift in Sources */,
 				57DC7EC11B00EDF1004C6FF6 /* Coordenable.swift in Sources */,
 				5750D8F51AF82ADD00D93191 /* DiscoverMapViewController.swift in Sources */,
 				57D2C1ED1AFD7339006C3C61 /* CDLocation.swift in Sources */,

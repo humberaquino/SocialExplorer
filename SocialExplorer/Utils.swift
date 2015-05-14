@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 struct HTTPUtils {
     // Helper: Given a dictionary of parameters, convert to a string for a url
     static func escapedParameters(parameters: [String : AnyObject]) -> String {
