@@ -14,7 +14,7 @@ import CoreLocation
 import XCGLogger
 
 
-class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetchedResultsControllerDelegate {
+class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetchedResultsControllerDelegate, CLLocationManagerDelegate {
     
     let ReferenceLocationSelectedSegueId = "ReferenceLocationSelected"
     
@@ -35,6 +35,7 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     
     var referenceLocationsFetchedResultsController: NSFetchedResultsController!
     
+    var locationManager: CLLocationManager!
     
     // MARK: View life cycle 
     
@@ -68,6 +69,20 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         self.registerObservers()
         
         self.configureRefreshButton()
+        
+        // Location manager
+        locationManager = CLLocationManager()
+//        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        
+//        locationManager.startUpdatingLocation()
+        
+        mapView.showsUserLocation = true
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+           
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -79,6 +94,20 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         super.viewWillDisappear(animated)
         mapView.removeGestureRecognizer(longTapRecognizer)
         
+    }
+    
+    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
+        var locValue:CLLocationCoordinate2D = manager.location.coordinate
+        logger.debug("locations = \(locValue.latitude) \(locValue.longitude)")
+        locationManager.stopUpdatingLocation()
+        
+        let center = CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude)
+        // FIXME
+        let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
+        
+        let region = MKCoordinateRegion(center: center, span: span)
+        
+        mapView.setRegion(region, animated: true)
     }
     
     
@@ -160,6 +189,10 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
         }
     }
     
+    @IBAction func locateMeAction(sender: UIButton) {
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
 
     // MARK: - UILongPressGestureRecognizer
     
@@ -180,6 +213,12 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     // MARK: - MKMapViewDelegate
 
     func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
+        
+        // Ignore the user location
+        // Ref: http://stackoverflow.com/a/4545352/223228
+        if annotation is MKUserLocation {
+            return nil
+        }
         
         let pinAnnotation = annotation as! PinAnnotation
         
@@ -433,12 +472,16 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     }
     
     func removeExistingLocationAnnotationsFromMap() {
-        let currentAnnotations = mapView.annotations as! [PinAnnotation]
+        let currentAnnotations = mapView.annotations
         for annotation in currentAnnotations {
-            if annotation.model == CDLocation.ModelName {
-                mapView.removeAnnotation(annotation)
+            if annotation is PinAnnotation {
+                let pinAnnotation = annotation as! PinAnnotation
+                if pinAnnotation.model == CDLocation.ModelName {
+                    mapView.removeAnnotation(pinAnnotation)
+                }
             }
         }
+        
     }
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
@@ -633,10 +676,13 @@ extension DiscoverMapViewController {
 
 extension MKMapView {
     func findPinAnnotationWithObjectID(objectID: NSManagedObjectID) -> PinAnnotation? {
-        let pinAnnotations = self.annotations as! [PinAnnotation]
-        for pinAnnotation in pinAnnotations {
-            if pinAnnotation.objectID == objectID {
-                return pinAnnotation
+        let currentAnnotations = self.annotations
+        for annotation in currentAnnotations {
+            if annotation is PinAnnotation {
+                let pinAnnotation = annotation as! PinAnnotation
+                if pinAnnotation.objectID == objectID {
+                    return pinAnnotation
+                }
             }
         }
         return nil

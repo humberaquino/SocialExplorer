@@ -81,14 +81,26 @@
                                     <action selector="zoomRoShowAllReferencesAction:" destination="jfB-6b-8SS" eventType="touchUpInside" id="VuN-lE-KKA"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZBM-et-5VA">
+                                <rect key="frame" x="478" y="513" width="30" height="30"/>
+                                <state key="normal" image="locateme">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="locateMeAction:" destination="jfB-6b-8SS" eventType="touchUpInside" id="pbd-Ea-Ofm"/>
+                                    <action selector="zoomRoShowAllReferencesAction:" destination="jfB-6b-8SS" eventType="touchUpInside" id="gMz-iB-7Pr"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="qbV-K4-tXq" secondAttribute="width" id="Kje-ds-4Jn"/>
                             <constraint firstAttribute="centerX" secondItem="qbV-K4-tXq" secondAttribute="centerX" id="Phm-KL-1e5"/>
+                            <constraint firstItem="ZBM-et-5VA" firstAttribute="top" secondItem="qbV-K4-tXq" secondAttribute="bottom" constant="-63" id="Rrn-OP-GzT"/>
                             <constraint firstItem="pOr-hV-tfT" firstAttribute="top" secondItem="k3l-RZ-FMg" secondAttribute="bottom" constant="8" id="Upt-zV-os9"/>
                             <constraint firstItem="pcG-Sg-TiL" firstAttribute="centerY" secondItem="k3l-RZ-FMg" secondAttribute="centerY" id="ZOW-ht-hSg"/>
                             <constraint firstItem="k3l-RZ-FMg" firstAttribute="leading" secondItem="pcG-Sg-TiL" secondAttribute="trailing" constant="8" id="fpF-Y8-1Zg"/>
+                            <constraint firstItem="pcG-Sg-TiL" firstAttribute="leading" secondItem="ZBM-et-5VA" secondAttribute="trailing" constant="8" id="ijB-tE-ad4"/>
                             <constraint firstAttribute="centerY" secondItem="qbV-K4-tXq" secondAttribute="centerY" constant="24.5" id="pSm-9O-AKw"/>
                             <constraint firstAttribute="height" secondItem="qbV-K4-tXq" secondAttribute="height" id="ub8-Vd-a7R"/>
                             <constraint firstItem="k3l-RZ-FMg" firstAttribute="leading" secondItem="qbV-K4-tXq" secondAttribute="trailing" constant="-46" id="yZR-6w-Ncx"/>
@@ -778,6 +790,7 @@
         <image name="allreferences" width="30" height="30"/>
         <image name="gear" width="30" height="30"/>
         <image name="heart" width="30" height="30"/>
+        <image name="locateme" width="30" height="30"/>
         <image name="star" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
