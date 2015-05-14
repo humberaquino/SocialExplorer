@@ -193,7 +193,7 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Jmz-zs-Of0" id="Bc7-FU-yyU">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hyi-Eo-Kkr">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="image-loading" translatesAutoresizingMaskIntoConstraints="NO" id="hyi-Eo-Kkr">
                                                     <rect key="frame" x="8" y="5" width="80" height="80"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="80" id="9jh-5t-mG3"/>
@@ -353,7 +353,7 @@
                                     <action selector="favoriteAction:" destination="Pfh-kn-u4k" eventType="touchUpInside" id="BJp-Ve-2JI"/>
                                 </connections>
                             </button>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ff7-ox-1mx">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="image-loading" translatesAutoresizingMaskIntoConstraints="NO" id="Ff7-ox-1mx">
                                 <rect key="frame" x="21" y="171" width="558" height="302"/>
                             </imageView>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="MlL-wD-gXd">
@@ -844,6 +844,7 @@
         <image name="firstbg" width="500" height="667"/>
         <image name="gear" width="30" height="30"/>
         <image name="heart" width="30" height="30"/>
+        <image name="image-loading" width="220" height="220"/>
         <image name="locateme" width="30" height="30"/>
         <image name="star" width="30" height="30"/>
     </resources>

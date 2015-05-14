@@ -270,6 +270,10 @@ class DiscoverMapViewController: UIViewController, MKMapViewDelegate , NSFetched
     }
     
     func mapView(mapView: MKMapView!, didSelectAnnotationView view: MKAnnotationView!) {
+        if view.annotation is MKUserLocation {
+            return
+        }
+        
         let pinAnnotation = view.annotation as! PinAnnotation
         
         if pinAnnotation.model == CDReference.ModelName {

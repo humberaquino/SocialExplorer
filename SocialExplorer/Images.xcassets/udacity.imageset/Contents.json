@@ -7,11 +7,12 @@
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "LaunchImage.png"
+      "filename" : "LaunchImage@2x.png"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "LaunchImage@3x.png"
     }
   ],
   "info" : {
