@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 import XCGLogger
 import OAuthSwift
-import SwiftOverlays
 
 // View used to enable or disable the social networks to use
 class SettingsViewController: UITableViewController {
@@ -38,8 +37,6 @@ class SettingsViewController: UITableViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.removeAllOverlays()
         
         // Configure UI for Instagram
         self.configureInstagram()
@@ -81,6 +78,8 @@ class SettingsViewController: UITableViewController {
             } else {
                 // Token does not exist
                 logger.info("Starting Instagram authentication")
+                // Disable now and let the oauth enable it
+                sender.on = false
                 startInstagramAuthentication()
             }
         } else {
@@ -105,14 +104,8 @@ class SettingsViewController: UITableViewController {
     
     // MARK: - Utility methods
     
-    func startAuthWithMessage(message: String, disablingSwitch aSwitch: UISwitch) {
-        self.showWaitOverlayWithText(message)
-        aSwitch.enabled = false
-    }
-    
     func completeAuthAndEnableSwitch(aSwitch: UISwitch) {
-        self.removeAllOverlays()
-        aSwitch.enabled = true
+        aSwitch.on = true
         configureContinueCell()
     }
     
@@ -136,7 +129,7 @@ class SettingsViewController: UITableViewController {
 extension SettingsViewController {
    
     func startInstagramAuthentication() {
-        self.startAuthWithMessage("Authenticating", disablingSwitch:instagramSwitch)
+    
         
         // Connect
         let oauthswift = OAuth2Swift(consumerKey: Config.Instagram.ClientId, consumerSecret: Config.Instagram.ClientSecret, authorizeUrl: InstagramOAuth.URL.Authorize, accessTokenUrl: InstagramOAuth.URL.AccessToken, responseType: InstagramOAuth.ParameteValues.Code)

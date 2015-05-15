@@ -21,11 +21,6 @@ pod 'SwiftyJSON', '~> 2.2.0'
 # https://github.com/DaveWoodCom/XCGLogger
 pod 'XCGLogger'
 
-# SwiftOverlays
-# Swift GUI library for displaying various popups and notifications
-# https://github.com/peterprokop/SwiftOverlays
-pod 'SwiftOverlays', '~> 0.11'  
-
 # Haneke
 # A lightweight generic cache for iOS written in Swift with extra love for images.
 # https://github.com/Haneke/HanekeSwift
